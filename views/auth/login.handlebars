@@ -1,0 +1,179 @@
+<div class="container mt-5">
+
+    <div class="row justify-content-center">
+
+        <div class="col-md-5">
+
+            <div class="card shadow">
+
+                <div class="card-header text-center">
+                    <h2>Inicio de sesión</h2>
+                </div>
+
+                <div class="card-body">
+
+                    <form id="loginForm">
+
+                        <div class="mb-3">
+
+                            <label class="form-label">
+                                Correo electrónico
+                            </label>
+
+                            <input
+                                type="email"
+                                id="correo"
+                                class="form-control"
+                                required
+                            >
+
+                        </div>
+
+                        <div class="mb-3">
+
+                            <label class="form-label">
+                                Contraseña
+                            </label>
+
+                            <input
+                                type="password"
+                                id="password"
+                                class="form-control"
+                                required
+                            >
+
+                        </div>
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary w-100"
+                        >
+                            Iniciar sesión
+                        </button>
+
+                    </form>
+
+                </div>
+
+                <div class="card-footer text-center">
+
+                    ¿No tienes una cuenta?
+
+                    <a href="/auth/register">
+                        Registrarse
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import {
+    getAuth,
+    signInWithEmailAndPassword
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+
+const firebaseConfig = {
+
+    apiKey: "TU_API_KEY_WEB",
+
+    authDomain: "progra-3-auto.firebaseapp.com",
+
+    projectId: "progra-3-auto",
+
+    storageBucket: "TU_STORAGE_BUCKET",
+
+    messagingSenderId: "TU_MESSAGING_SENDER_ID",
+
+    appId: "TU_APP_ID"
+
+};
+
+
+const app = initializeApp(firebaseConfig);
+
+const auth = getAuth(app);
+
+
+document
+    .getElementById("loginForm")
+    .addEventListener("submit", async (e) => {
+
+        e.preventDefault();
+
+        const correo =
+            document.getElementById("correo").value;
+
+        const password =
+            document.getElementById("password").value;
+
+
+        try {
+
+            const credencial =
+                await signInWithEmailAndPassword(
+                    auth,
+                    correo,
+                    password
+                );
+
+
+            const token =
+                await credencial.user.getIdToken();
+
+
+            const respuesta =
+                await fetch("/auth/verify-token", {
+
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        token
+                    })
+
+                });
+
+
+            const resultado =
+                await respuesta.json();
+
+
+            if (resultado.success) {
+
+                window.location.href =
+                    resultado.redirect;
+
+            } else {    
+
+                alert(resultado.message);
+
+            }
+
+
+        } catch (error) {
+
+            console.error(error);
+
+            alert("Correo o contraseña incorrectos.");
+
+        }
+
+    });
+
+</script>

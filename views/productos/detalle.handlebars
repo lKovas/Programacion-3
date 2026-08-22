@@ -1,0 +1,133 @@
+<div class="container mt-5">
+
+    <div class="row">
+
+        <div class="col-md-5">
+
+            <img
+                src="{{producto.imagen}}"
+                class="img-fluid rounded shadow"
+                alt="{{producto.nombre}}"
+            >
+
+        </div>
+
+        <div class="col-md-7">
+
+            <h2>{{producto.nombre}}</h2>
+
+            <hr>
+
+            <h4 class="text-success">
+
+                ₡ {{producto.precio}}
+
+            </h4>
+
+            <p>
+
+                <strong>Categoría:</strong>
+
+                {{producto.nombrecategoria}}
+
+            </p>
+
+            <p>
+
+                <strong>Stock disponible:</strong>
+
+                {{producto.stock}}
+
+            </p>
+
+            {{#if producto.descripcion}}
+
+            <p>
+
+                <strong>Descripción:</strong>
+
+            </p>
+
+            <p>
+
+                {{producto.descripcion}}
+
+            </p>
+
+            {{/if}}
+
+            <form
+                action="/carrito/agregar"
+                method="POST"
+            >
+
+                <input
+                    type="hidden"
+                    name="idProducto"
+                    value="{{producto.idproducto}}"
+                >
+
+                <div class="mb-3">
+
+                    <label class="form-label">
+
+                        Cantidad
+
+                    </label>
+
+                    <input
+                        type="number"
+                        class="form-control"
+                        name="cantidad"
+                        value="1"
+                        min="1"
+                        max="{{producto.stock}}"
+                        required
+                    >
+
+                </div>
+
+                <button
+                    type="submit"
+                    class="btn btn-success"
+                >
+
+                    Agregar al carrito
+
+                </button>
+
+                <a
+                    href="/productos"
+                    class="btn btn-secondary"
+                >
+
+                    Volver al catálogo
+
+                </a>
+
+            </form>
+
+        </div>
+
+    </div>
+
+    <hr class="mt-5">
+
+    <div class="row">
+
+        <div class="col-md-12 text-center">
+
+            <a
+                href="/carrito"
+                class="btn btn-primary"
+            >
+
+                Ver Carrito
+
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
