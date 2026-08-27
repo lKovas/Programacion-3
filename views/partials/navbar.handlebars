@@ -1,0 +1,138 @@
+<!--
+
+    PARTIAL: Barra de navegación (navbar)
+
+    Este archivo se inserta en el layout principal (main.handlebars)
+    con {{> navbar}}, por eso puede usarse en TODAS las páginas.
+
+    Usa dos variables globales que YA están disponibles en
+    cualquier vista sin que el controlador las tenga que enviar,
+    porque se definen una sola vez en app.js con res.locals:
+
+        app.use((req, res, next) => {
+          res.locals.usuario = req.session.usuario || null;
+          res.locals.esAdmin = req.session.usuario?.rol === 'admin' || false;
+          next();
+        });
+
+    - usuario:  objeto de sesión del cliente logueado, o null.
+    - esAdmin:  true solo si usuario.rol === 'admin'.
+    
+-->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+
+    <div class="container">
+
+        <!-- Marca de la tienda: siempre lleva al catálogo (ver app.js: "/" redirige a "/productos") -->
+        <a class="navbar-brand" href="/">
+            MarketGo
+        </a>
+
+        <!-- Botón "hamburguesa" para pantallas pequeñas -->
+        <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarPrincipal"
+            aria-controls="navbarPrincipal"
+            aria-expanded="false"
+            aria-label="Mostrar menú"
+        >
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarPrincipal">
+
+            <!-- ===== Enlaces principales (izquierda) ===== -->
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+                <!-- Visible siempre, con o sin sesión -->
+                <li class="nav-item">
+                    <a class="nav-link" href="/productos">
+                        Inicio / Catálogo
+                    </a>
+                </li>
+
+                <!--
+                    Todo lo que depende de tener sesión activa
+                    (carrito, pedidos, admin) va DENTRO de este
+                    mismo {{#if usuario}}. Antes "esAdmin" estaba
+                    suelto y separado; se anida aquí como buena
+                    práctica defensiva: así, aunque en el futuro
+                    cambie la lógica de esAdmin en app.js, nunca
+                    se podrá mostrar un enlace de administración
+                    a alguien sin sesión.
+                -->
+                {{#if usuario}}
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="/carrito">
+                            Carrito
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="/cliente/pedidos">
+                            Mis pedidos
+                        </a>
+                    </li>
+
+                    {{#if esAdmin}}
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin">
+                                Administración
+                            </a>
+                        </li>
+                    {{/if}}
+
+                {{/if}}
+
+            </ul>
+
+            <!-- ===== Enlaces de cuenta (derecha) ===== -->
+            <ul class="navbar-nav">
+
+                {{#if usuario}}
+
+                    <!-- Saludo con el nombre guardado en la sesión (ver authController.verifyToken) -->
+                    <li class="nav-item">
+                        <span class="nav-link">
+                            Hola, {{usuario.nombre}}
+                        </span>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="/cliente/perfil">
+                            Mi perfil
+                        </a>
+                    </li>
+
+                    <!-- GET /auth/logout destruye la sesión (ver authController.logout) -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="/auth/logout">
+                            Cerrar sesión
+                        </a>
+                    </li>
+
+                {{else}}
+
+                    <!-- Sin sesión: se ofrecen las dos entradas posibles -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="/auth/login">
+                            Iniciar sesión
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="/auth/register">
+                            Registrarse
+                        </a>
+                    </li>
+
+                {{/if}}
+
+            </ul>
+
+        </div>
+    </div>
+</nav>

@@ -1,5 +1,14 @@
+<!--
+
+    VISTA: Página de inicio 
+    Es contenido casi todo estático; el único dato dinámico
+    es "usuario" (viene de res.locals en app.js, disponible
+    en TODAS las vistas sin que el controlador lo envíe).
+
+-->
 <div class="container mt-5">
 
+    <!-- ===== Sección "hero" de bienvenida ===== -->
     <div class="row align-items-center">
 
         <div class="col-md-6">
@@ -7,6 +16,18 @@
             <h1 class="display-4 fw-bold">
                 Bienvenido a la Tienda Virtual
             </h1>
+
+            <!--
+                Pequeña personalización: si ya hay sesión activa,
+                saludamos por nombre. Es un cambio de una sola
+                línea que reutiliza una variable que YA existe
+                en el proyecto (no requiere tocar el controlador).
+            -->
+            {{#if usuario}}
+                <p class="text-success">
+                    ¡Qué bueno verte de nuevo, {{usuario.nombre}}!
+                </p>
+            {{/if}}
 
             <p class="lead">
                 Compra los mejores productos de forma rápida y segura.
@@ -32,8 +53,17 @@
 
     <hr class="my-5">
 
+    <!--
+        ===== Tarjetas de acceso rápido =====
+        Antes siempre se mostraban "Iniciar Sesión" y "Crear Cuenta",
+        incluso a alguien que YA tenía sesión abierta (no tenía
+        mucho sentido invitar a registrarse a quien ya es cliente).
+        Ahora, si hay sesión activa, esas dos tarjetas se reemplazan
+        por accesos directos al carrito y a "mis pedidos".
+    -->
     <div class="row">
 
+        <!-- Esta tarjeta es igual para todos los visitantes -->
         <div class="col-md-4 mb-4">
 
             <div class="card shadow h-100">
@@ -48,10 +78,7 @@
 
                     </p>
 
-                    <a
-                        href="/productos"
-                        class="btn btn-outline-primary"
-                    >
+                    <a href="/productos" class="btn btn-outline-primary">
 
                         Ver Productos
 
@@ -60,66 +87,73 @@
                 </div>
 
             </div>
-
+            
         </div>
 
-        <div class="col-md-4 mb-4">
+        {{#if usuario}}
 
-            <div class="card shadow h-100">
+            <!-- Usuario CON sesión: accesos directos a su cuenta -->
+            <div class="col-md-4 mb-4">
+                <div class="card shadow h-100">
+                    <div class="card-body text-center">
+                        <h3>Mi Carrito</h3>
+                        <p>
+                            Revisa los productos que has agregado.
+                        </p>
+                        <a href="/carrito" class="btn btn-outline-success">
+                            Ver Carrito
+                        </a>
+                    </div>
+                </div>
+            </div>
 
-                <div class="card-body text-center">
+            <div class="col-md-4 mb-4">
+                <div class="card shadow h-100">
+                    <div class="card-body text-center">
+                        <h3>Mis Pedidos</h3>
+                        <p>
+                            Consulta el estado de tus compras anteriores.
+                        </p>
+                        <a href="/cliente/pedidos" class="btn btn-outline-warning">
+                            Ver Pedidos
+                        </a>
+                    </div>
+                </div>
+            </div>
 
-                    <h3>Iniciar Sesión</h3>
+        {{else}}
 
-                    <p>
+            <!-- Usuario SIN sesión: invitación a entrar o registrarse -->
+            <div class="col-md-4 mb-4">
+                <div class="card shadow h-100">
+                    <div class="card-body text-center">
+                        <h3>Iniciar Sesión</h3>
+                        <p>
+                            Accede a tu cuenta para realizar compras.
+                        </p>
+                        <a href="/auth/login" class="btn btn-outline-success">
+                            Ingresar
+                        </a>
+                    </div>
+                </div>
+            </div>
 
-                        Accede a tu cuenta para realizar compras.
-
-                    </p>
-
-                    <a
-                        href="/auth/login"
-                        class="btn btn-outline-success"
-                    >
-
-                        Ingresar
-
-                    </a>
-
+            <div class="col-md-4 mb-4">
+                <div class="card shadow h-100">
+                    <div class="card-body text-center">
+                        <h3>Crear Cuenta</h3>
+                        <p>
+                            Regístrate y disfruta de todas las funciones.
+                        </p>
+                        <a href="/auth/register" class="btn btn-outline-warning">
+                            Registrarse
+                        </a>
+                    </div>
                 </div>
 
             </div>
 
-        </div>
-
-        <div class="col-md-4 mb-4">
-
-            <div class="card shadow h-100">
-
-                <div class="card-body text-center">
-
-                    <h3>Crear Cuenta</h3>
-
-                    <p>
-
-                        Regístrate y disfruta de todas las funciones.
-
-                    </p>
-
-                    <a
-                        href="/auth/register"
-                        class="btn btn-outline-warning"
-                    >
-
-                        Registrarse
-
-                    </a>
-
-                </div>
-
-            </div>
-
-        </div>
+        {{/if}}
 
     </div>
 
@@ -132,9 +166,9 @@
                 Compra de forma segura utilizando Firebase Authentication y nuestro sistema de pedidos.
 
             </div>
-
+            
         </div>
-
+        
     </div>
 
 </div>

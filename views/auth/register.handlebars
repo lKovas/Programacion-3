@@ -1,3 +1,11 @@
+<!--
+
+    Crea el usuario en Firebase y luego, con el mismo endpoint
+    que usa el login (POST /auth/verify-token), le pide al
+    backend que lo guarde también en nuestra base de datos
+    (tabla CLIENTE) si todavía no existe (ver authController.verifyToken).
+ 
+-->
 <div class="container mt-5">
 
     <div class="row justify-content-center">
@@ -12,59 +20,46 @@
 
                 <div class="card-body">
 
-                    <form id="registerForm">
+                    <form id="registerForm" novalidate>
 
                         <div class="mb-3">
-
-                            <label class="form-label">
-                                Nombre
-                            </label>
-
+                            <label class="form-label">Nombre</label>
                             <input
                                 type="text"
                                 id="nombre"
                                 class="form-control"
+                                autocomplete="name"
                                 required
                             >
 
                         </div>
 
                         <div class="mb-3">
-
-                            <label class="form-label">
-                                Correo electrónico
-                            </label>
-
+                            <label class="form-label">Correo electrónico</label>
                             <input
                                 type="email"
                                 id="correo"
                                 class="form-control"
+                                autocomplete="email"
                                 required
                             >
 
                         </div>
 
                         <div class="mb-3">
-
-                            <label class="form-label">
-                                Teléfono
-                            </label>
-
+                            <label class="form-label">Teléfono</label>
                             <input
                                 type="text"
                                 id="telefono"
                                 class="form-control"
+                                autocomplete="tel"
                                 required
                             >
 
                         </div>
 
                         <div class="mb-3">
-
-                            <label class="form-label">
-                                Dirección
-                            </label>
-
+                            <label class="form-label">Dirección</label>
                             <textarea
                                 id="direccion"
                                 class="form-control"
@@ -74,22 +69,41 @@
                         </div>
 
                         <div class="mb-3">
-
-                            <label class="form-label">
-                                Contraseña
-                            </label>
-
+                            <label class="form-label">Contraseña</label>
                             <input
                                 type="password"
                                 id="password"
                                 class="form-control"
+                                autocomplete="new-password"
+                                minlength="6"
                                 required
                             >
-
+                            <!-- Firebase exige mínimo 6 caracteres; se lo avisamos antes de intentarlo -->
+                            <div class="form-text">Mínimo 6 caracteres.</div>
                         </div>
+
+                        <!--
+                            Campo NUEVO: confirmar contraseña.
+                            Solo se valida en el navegador (nunca se
+                            envía al servidor), para detectar errores
+                            de tipeo antes de gastar una llamada a Firebase.
+                        -->
+                        <div class="mb-3">
+                            <label class="form-label">Confirmar contraseña</label>
+                            <input
+                                type="password"
+                                id="passwordConfirm"
+                                class="form-control"
+                                autocomplete="new-password"
+                                required
+                            >
+                        </div>
+
+                        <div id="registerError" class="alert alert-danger d-none" role="alert"></div>
 
                         <button
                             type="submit"
+                            id="registerBtn"
                             class="btn btn-success w-100"
                         >
                             Registrarse
@@ -102,7 +116,7 @@
                 <div class="card-footer text-center">
 
                     ¿Ya tienes una cuenta?
-
+                    
                     <a href="/auth/login">
                         Iniciar sesión
                     </a>
@@ -117,121 +131,97 @@
 
 </div>
 
-
+<!--
+    Igual que en login.handlebars: se reutiliza el mismo cliente
+    de Firebase compartido (public/js/firebaseClient.js) en vez
+    de repetir la configuración con placeholders en cada vista.
+-->
 <script type="module">
 
-import { initializeApp }
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
-import {
-    getAuth,
-    createUserWithEmailAndPassword
-}
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import {
+        auth,
+        createUserWithEmailAndPassword
+    } from "/js/firebaseClient.js";
 
+    const form = document.getElementById("registerForm");
+    const btn = document.getElementById("registerBtn");
+    const errorBox = document.getElementById("registerError");
 
-const firebaseConfig = {
+    function mensajeDeError(codigo) {
+        switch (codigo) {
+            case "auth/email-already-in-use":
+                return "Ya existe una cuenta registrada con ese correo.";
+            case "auth/invalid-email":
+                return "El correo electrónico no tiene un formato válido.";
+            case "auth/weak-password":
+                return "La contraseña es demasiado débil (mínimo 6 caracteres).";
+            default:
+                return "No fue posible registrar el usuario. Intenta de nuevo.";
+        }
+    }
 
-    apiKey: "TU_API_KEY_WEB",
+    function mostrarError(texto) {
+        errorBox.textContent = texto;
+        errorBox.classList.remove("d-none");
+    }
 
-    authDomain: "progra-3-auto.firebaseapp.com",
+    function ocultarError() {
+        errorBox.classList.add("d-none");
+    }
 
-    projectId: "progra-3-auto",
-
-    storageBucket: "TU_STORAGE_BUCKET",
-
-    messagingSenderId: "TU_MESSAGING_SENDER_ID",
-
-    appId: "TU_APP_ID"
-
-};
-
-
-const app = initializeApp(firebaseConfig);
-
-const auth = getAuth(app);
-
-
-document
-    .getElementById("registerForm")
-    .addEventListener("submit", async (e) => {
+    form.addEventListener("submit", async (e) => {
 
         e.preventDefault();
+        ocultarError();
 
+        const nombre = document.getElementById("nombre").value.trim();
+        const correo = document.getElementById("correo").value.trim();
+        const telefono = document.getElementById("telefono").value.trim();
+        const direccion = document.getElementById("direccion").value.trim();
+        const password = document.getElementById("password").value;
+        const passwordConfirm = document.getElementById("passwordConfirm").value;
 
-        const nombre =
-            document.getElementById("nombre").value;
+        // Validación en el cliente: evita llamar a Firebase si
+        // las contraseñas ni siquiera coinciden.
+        if (password !== passwordConfirm) {
+            mostrarError("Las contraseñas no coinciden.");
+            return;
+        }
 
-        const correo =
-            document.getElementById("correo").value;
-
-        const telefono =
-            document.getElementById("telefono").value;
-
-        const direccion =
-            document.getElementById("direccion").value;
-
-        const password =
-            document.getElementById("password").value;
-
+        btn.disabled = true;
+        btn.textContent = "Registrando...";
 
         try {
 
-            const credencial =
-                await createUserWithEmailAndPassword(
-                    auth,
-                    correo,
-                    password
-                );
+            // 1) Se crea el usuario en Firebase Authentication
+            const credencial = await createUserWithEmailAndPassword(auth, correo, password);
+            const token = await credencial.user.getIdToken();
 
+            // 2) Se envía el token + los datos del cliente al backend,
+            //    que verifica el token y crea el registro en la BD.
+            const respuesta = await fetch("/auth/verify-token", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ token, nombre, telefono, direccion })
+            });
 
-            const token =
-                await credencial.user.getIdToken();
-
-
-            const respuesta =
-                await fetch("/auth/verify-token", {
-
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-
-                    body: JSON.stringify({
-
-                        token,
-                        nombre,
-                        telefono,
-                        direccion
-
-                    })
-
-                });
-
-
-            const resultado =
-                await respuesta.json();
-
+            const resultado = await respuesta.json();
 
             if (resultado.success) {
-
-                window.location.href =
-                    resultado.redirect;
-
+                window.location.href = resultado.redirect;
             } else {
-
-                alert(resultado.message);
-
+                mostrarError(resultado.message || "No fue posible completar el registro.");
             }
 
 
         } catch (error) {
 
             console.error(error);
-
-            alert("No fue posible registrar el usuario.");
-
+            mostrarError(mensajeDeError(error.code));
+        } finally {
+            btn.disabled = false;
+            btn.textContent = "Registrarse";
         }
 
     });

@@ -1,3 +1,10 @@
+<!--
+  
+    VISTA: Catálogo de productos (con buscador y filtro)
+    "productos" y "categorias" vienen del controlador
+    (productoController.index).
+
+-->
 <div class="container mt-5">
 
     <div class="row mb-4">
@@ -36,36 +43,22 @@
         </div>
 
         <div class="col-md-6">
-
-            <select
-                id="categoria"
-                class="form-select"
-            >
-
-                <option value="">
-
-                    Todas las categorías
-
-                </option>
-
+            <select id="categoria" class="form-select">
+                <option value="">Todas las categorías</option>
                 {{#each categorias}}
-
-                <option value="{{idcategoria}}">
-
-                    {{nombre}}
-
-                </option>
-
+                <option value="{{idcategoria}}">{{nombre}}</option>
                 {{/each}}
 
             </select>
 
         </div>
 
+
     </div>
 
     <div class="row" id="listaProductos">
 
+       
         {{#each productos}}
 
         <div
@@ -103,54 +96,46 @@
 
                     </p>
 
+                    <!-- Igual que en el detalle: distinguimos "hay stock" de "agotado" -->
                     <p>
 
                         <strong>Stock:</strong>
-
-                        {{stock}}
-
+                        {{#if stock}}
+                            {{stock}}
+                        {{else}}
+                            <span class="badge bg-danger">Agotado</span>
+                        {{/if}}
                     </p>
 
                 </div>
 
                 <div class="card-footer">
 
-                    <a
-                        href="/productos/{{idproducto}}"
-                        class="btn btn-primary w-100 mb-2"
-                    >
-
+                    <a href="/productos/{{idproducto}}" class="btn btn-primary w-100 mb-2">
                         Ver Detalle
 
                     </a>
 
-                    <form
-                        action="/carrito/agregar"
-                        method="POST"
-                    >
-
-                        <input
-                            type="hidden"
-                            name="idProducto"
-                            value="{{idproducto}}"
-                        >
-
-                        <input
-                            type="hidden"
-                            name="cantidad"
-                            value="1"
-                        >
-
-                        <button
-                            type="submit"
-                            class="btn btn-success w-100"
-                        >
-
-                            Agregar al carrito
-
+                    <!--
+                        ANTES: este formulario de "cantidad=1 fija"
+                        se mostraba siempre, incluso con stock 0,
+                        dejando "agregar" productos sin existencias.
+                        AHORA: solo aparece si stock > 0; si no, se
+                        muestra un botón deshabilitado.
+                    -->
+                    {{#if stock}}
+                        <form action="/carrito/agregar" method="POST">
+                            <input type="hidden" name="idProducto" value="{{idproducto}}">
+                            <input type="hidden" name="cantidad" value="1">
+                            <button type="submit" class="btn btn-success w-100">
+                                Agregar al carrito
+                            </button>
+                        </form>
+                    {{else}}
+                        <button type="button" class="btn btn-secondary w-100" disabled>
+                            Agotado
                         </button>
-
-                    </form>
+                    {{/if}}
 
                 </div>
 
@@ -158,47 +143,81 @@
 
         </div>
 
+        {{else}}
+
+        <div class="col-12">
+            <div class="alert alert-info text-center">
+                <h5>No hay productos disponibles.</h5>
+                <p class="mb-0">
+                    Actualmente no existen productos registrados en el catálogo.
+                </p>
+            </div>
+        </div>
+
         {{/each}}
 
+    </div>
+
+    <!--
+        NUEVO: mensaje para cuando SÍ hay productos, pero la
+        búsqueda/filtro del usuario no encuentra ninguno.
+        Empieza oculto (d-none) y el script de abajo lo muestra
+        u oculta según haga falta.
+    -->
+    <div id="sinResultados" class="alert alert-secondary text-center d-none">
+        No se encontraron productos que coincidan con tu búsqueda.
     </div>
 
 </div>
 
 <script>
 
-const txtBuscar = document.getElementById("buscar");
-const cboCategoria = document.getElementById("categoria");
+    const txtBuscar = document.getElementById("buscar");
+    const cboCategoria = document.getElementById("categoria");
+    const sinResultados = document.getElementById("sinResultados");
 
-function filtrar(){
+    function filtrar() {
 
-    const texto = txtBuscar.value.toLowerCase();
-    const categoria = cboCategoria.value;
+        // trim() evita que espacios en blanco al inicio/final
+        // cuenten como si el usuario estuviera buscando algo.
+        const texto = txtBuscar.value.trim().toLowerCase();
+        const categoria = cboCategoria.value;
 
-    const productos = document.querySelectorAll(".producto");
+        const productos = document.querySelectorAll(".producto");
+        let visibles = 0;
 
-    productos.forEach(producto=>{
+        productos.forEach(producto => {
 
-        const nombre = producto.dataset.nombre.toLowerCase();
-        const cat = producto.dataset.categoria;
+            const nombre = producto.dataset.nombre.toLowerCase();
+            const cat = producto.dataset.categoria;
 
-        let mostrar = true;
+            let mostrar = true;
 
-        if(texto!="" && !nombre.includes(texto)){
-            mostrar = false;
-        }
+            if (texto !== "" && !nombre.includes(texto)) {
+                mostrar = false;
+            }
 
-        if(categoria!="" && categoria!=cat){
-            mostrar = false;
-        }
+            if (categoria !== "" && categoria !== cat) {
+                mostrar = false;
+            }
 
-        producto.style.display = mostrar ? "" : "none";
+            producto.style.display = mostrar ? "" : "none";
 
-    });
+            if (mostrar) visibles++;
 
-}
+        });
 
-txtBuscar.addEventListener("keyup",filtrar);
+        // Si el catálogo tiene productos pero el filtro los ocultó
+        // todos, mostramos el aviso de "sin resultados".
+        sinResultados.classList.toggle("d-none", visibles !== 0 || productos.length === 0);
 
-cboCategoria.addEventListener("change",filtrar);
+    }
+
+    // Si no hay ningún ".producto" en la página (catálogo vacío),
+    // ni siquiera enganchamos los eventos: no tiene sentido filtrar nada.
+    if (txtBuscar && cboCategoria) {
+        txtBuscar.addEventListener("keyup", filtrar);
+        cboCategoria.addEventListener("change", filtrar);
+    }
 
 </script>

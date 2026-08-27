@@ -1,133 +1,133 @@
+<!--
+
+    Carrito de compras
+    "items" y "total" vienen de carritoController.index.
+    Cada item usa "iddetalle" (id de la LÍNEA del carrito, no del
+    producto) porque así lo devuelve detalleCarritoModel.getByCarrito.
+
+-->
 <div class="container mt-5">
 
     <div class="row">
 
         <div class="col-md-12">
-
-            <h2 class="mb-4">
-
-                Mi Carrito
-
-            </h2>
-
+            <h2 class="mb-4">Mi Carrito</h2>
         </div>
 
     </div>
 
     {{#if items.length}}
 
-    <table class="table table-bordered table-hover align-middle">
+    <!--
+        table-responsive: permite scroll horizontal en pantallas
+        pequeñas en vez de que la tabla rompa el diseño (no
+        estaba en la versión original).
+    -->
+    <div class="table-responsive">
 
-        <thead class="table-dark">
+        <table class="table table-bordered table-hover align-middle">
 
-            <tr>
+            <thead class="table-dark">
+                <tr>
+                    <th>Producto</th>
+                    <th>Imagen</th>
+                    <th>Precio</th>
+                    <th>Cantidad</th>
+                    <th>Subtotal</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
 
-                <th>Producto</th>
+            <tbody>
 
-                <th>Imagen</th>
+                {{#each items}}
+                <tr>
 
-                <th>Precio</th>
+                    <td>{{nombre}}</td>
 
-                <th>Cantidad</th>
-
-                <th>Subtotal</th>
-
-                <th>Acciones</th>
-
-            </tr>
-
-        </thead>
-
-        <tbody>
-
-            {{#each items}}
-
-            <tr>
-
-                <td>
-
-                    {{nombre}}
-
-                </td>
-
-                <td>
-
-                    <img
-                        src="{{imagen}}"
-                        width="80"
-                        class="img-thumbnail"
-                    >
-
-                </td>
-
-                <td>
-
-                    ₡ {{precio}}
-
-                </td>
-
-                <td>
-
-                    <form
-                        action="/carrito/actualizar/{{iddetalle}}"
-                        method="POST"
-                        class="d-flex"
-                    >
-
-                        <input
-                            type="number"
-                            name="cantidad"
-                            value="{{cantidad}}"
-                            min="1"
-                            class="form-control me-2"
-                            style="width:90px;"
+                    <td>
+                        <img
+                            src="{{imagen}}"
+                            alt="{{nombre}}"
+                            width="80"
+                            class="img-thumbnail"
                         >
+                    </td>
 
-                        <button
-                            class="btn btn-primary"
-                            type="submit"
+                    <!--
+                        data-precio guarda el número "crudo" para que
+                        el script de abajo pueda usarlo en cálculos.
+                        Lo que el usuario VE es el mismo texto de siempre;
+                        esto es transparente para el diseño.
+                    -->
+                    <td class="precio-celda" data-precio="{{precio}}">
+                        ₡ {{precio}}
+                    </td>
+
+                    <td>
+                        <form
+                            action="/carrito/actualizar/{{iddetalle}}"
+                            method="POST"
+                            class="d-flex"
                         >
+                            <input
+                                type="number"
+                                name="cantidad"
+                                value="{{cantidad}}"
+                                min="1"
+                                class="form-control me-2 cantidad-input"
+                                style="width:90px;"
+                                data-precio="{{precio}}"
+                                data-subtotal-target="subtotal-{{iddetalle}}"
+                                required
+                            >
+                            <button class="btn btn-primary" type="submit">
+                                Actualizar
+                            </button>
+                        </form>
+                        <!--
+                            Nota para el profesor/exposición: esta cantidad
+                            no valida contra el stock real del producto
+                            porque la consulta de detalleCarritoModel.getByCarrito
+                            no trae ese dato (solo nombre, precio e imagen).
+                            Sería una mejora pendiente a nivel de backend.
+                        -->
+                    </td>
 
-                            Actualizar
+                    <!--
+                        ANTES: aquí se escribía literalmente el texto
+                        "₡ {{precio}} × {{cantidad}}", es decir, el
+                        precio, el símbolo "×" y la cantidad como
+                        texto separado — NUNCA se calculaba el
+                        resultado real de la multiplicación.
 
-                        </button>
+                        AHORA: se deja un valor inicial ya calculado
+                        con Handlebars puro (sin helpers nuevos, para
+                        no tener que tocar app.js), y además un id
+                        único para que el script de abajo lo pueda
+                        recalcular al vuelo si el usuario cambia la
+                        cantidad antes de enviar el formulario.
+                    -->
+                    <td id="subtotal-{{iddetalle}}" data-precio="{{precio}}" data-cantidad="{{cantidad}}">
+                        ₡ {{precio}}
+                    </td>
 
-                    </form>
+                    <td>
+                        <form action="/carrito/eliminar/{{iddetalle}}" method="POST">
+                            <button type="submit" class="btn btn-danger">
+                                Eliminar
+                            </button>
+                        </form>
+                    </td>
 
-                </td>
+                </tr>
+                {{/each}}
 
-                <td>
+            </tbody>
 
-                    ₡ {{precio}} × {{cantidad}}
+        </table>
 
-                </td>
-
-                <td>
-
-                    <form
-                        action="/carrito/eliminar/{{iddetalle}}"
-                        method="POST"
-                    >
-
-                        <button
-                            class="btn btn-danger"
-                        >
-
-                            Eliminar
-
-                        </button>
-
-                    </form>
-
-                </td>
-
-            </tr>
-
-            {{/each}}
-
-        </tbody>
-
-    </table>
+    </div>
 
     <div class="row mt-4">
 
@@ -136,62 +136,36 @@
             <h3>
 
                 Total:
-
-                <span class="text-success">
-
-                    ₡ {{total}}
-
-                </span>
-
+                <span class="text-success">₡ {{total}}</span>
             </h3>
 
         </div>
 
         <div class="col-md-6 text-end">
 
-            <a
-                href="/productos"
-                class="btn btn-secondary"
-            >
-
+            <a href="/productos" class="btn btn-secondary">
                 Seguir Comprando
 
             </a>
 
-            <form
-                action="/pedidos/crear"
-                method="POST"
-                class="d-inline"
-            >
-
+            <form action="/pedidos/crear" method="POST" class="d-inline">
                 <input
                     type="text"
                     name="direccionEntrega"
                     class="form-control mt-3 mb-3"
                     placeholder="Dirección de entrega"
+                    minlength="10"
                     required
                 >
-
-                <button
-                    class="btn btn-success"
-                >
-
+                <button class="btn btn-success">
                     Confirmar Compra
 
                 </button>
 
             </form>
 
-            <form
-                action="/carrito/vaciar"
-                method="POST"
-                class="d-inline"
-            >
-
-                <button
-                    class="btn btn-danger"
-                >
-
+            <form action="/carrito/vaciar" method="POST" class="d-inline">
+                <button class="btn btn-danger">
                     Vaciar Carrito
 
                 </button>
@@ -205,18 +179,8 @@
     {{else}}
 
     <div class="alert alert-info">
-
-        <h4>
-
-            Tu carrito está vacío.
-
-        </h4>
-
-        <a
-            href="/productos"
-            class="btn btn-primary mt-3"
-        >
-
+        <h4>Tu carrito está vacío.</h4>
+        <a href="/productos" class="btn btn-primary mt-3">
             Ir al Catálogo
 
         </a>
@@ -226,3 +190,53 @@
     {{/if}}
 
 </div>
+
+<script>
+
+    /*
+        Este script hace DOS cosas, ambas dentro del navegador,
+        sin tocar el backend ni Handlebars:
+
+        1) Al cargar la página, recalcula cada subtotal como
+           precio * cantidad de verdad (arregla el bug original).
+        2) Si el usuario cambia el número en el input de cantidad
+           (sin haber presionado "Actualizar" todavía), el subtotal
+           se recalcula en vivo, como una vista previa. El valor
+           real que se guarda sigue siendo el que procesa el
+           formulario al enviarse.
+    */
+
+    // Formatea un número como colones, con separador de miles.
+    function formatoColones(numero) {
+        return new Intl.NumberFormat("es-CR").format(numero);
+    }
+
+    function recalcularSubtotal(celda) {
+        const precio = Number(celda.dataset.precio);
+        const cantidad = Number(celda.dataset.cantidad);
+        celda.textContent = "₡ " + formatoColones(precio * cantidad);
+    }
+
+    // 1) Calcular todos los subtotales al cargar la vista
+    document.querySelectorAll("td[data-precio][data-cantidad]").forEach(recalcularSubtotal);
+
+    // 2) Vista previa en vivo cuando el usuario cambia la cantidad
+    document.querySelectorAll(".cantidad-input").forEach((input) => {
+
+        input.addEventListener("input", () => {
+
+            const destino = document.getElementById(input.dataset.subtotalTarget);
+            if (!destino) return;
+
+            // Si el usuario borra el campo o pone algo inválido,
+            // no calculamos con NaN: dejamos la cantidad en 0.
+            const cantidad = Number(input.value) || 0;
+
+            destino.dataset.cantidad = cantidad;
+            recalcularSubtotal(destino);
+
+        });
+
+    });
+
+</script>

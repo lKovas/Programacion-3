@@ -1,3 +1,9 @@
+<!--
+    Autentica con Firebase en el navegador y luego avisa a
+    nuestro propio backend (POST /auth/verify-token) para que
+    cree la sesión del servidor (req.session.usuario).
+ 
+-->
 <div class="container mt-5">
 
     <div class="row justify-content-center">
@@ -12,7 +18,13 @@
 
                 <div class="card-body">
 
-                    <form id="loginForm">
+                    <!--
+                        No lleva action/method: el envío se
+                        controla 100% desde el script de abajo
+                        (fetch), para poder mostrar mensajes de
+                        error sin recargar la página.
+                    -->
+                    <form id="loginForm" novalidate>
 
                         <div class="mb-3">
 
@@ -24,9 +36,10 @@
                                 type="email"
                                 id="correo"
                                 class="form-control"
+                                autocomplete="email"
                                 required
                             >
-
+                            
                         </div>
 
                         <div class="mb-3">
@@ -34,18 +47,28 @@
                             <label class="form-label">
                                 Contraseña
                             </label>
-
+                            
                             <input
                                 type="password"
                                 id="password"
                                 class="form-control"
+                                autocomplete="current-password"
                                 required
                             >
 
                         </div>
 
+                        <!--
+                            Espacio reservado para mostrar errores.
+                            Antes se usaba alert(), que es molesto y
+                            bloquea el navegador. Ahora el mensaje
+                            aparece dentro de la misma tarjeta.
+                        -->
+                        <div id="loginError" class="alert alert-danger d-none" role="alert"></div>
+
                         <button
                             type="submit"
+                            id="loginBtn"
                             class="btn btn-primary w-100"
                         >
                             Iniciar sesión
@@ -56,10 +79,11 @@
                 </div>
 
                 <div class="card-footer text-center">
-
+                    
                     ¿No tienes una cuenta?
 
                     <a href="/auth/register">
+                    
                         Registrarse
                     </a>
 
@@ -73,105 +97,90 @@
 
 </div>
 
+
 <script type="module">
 
-import { initializeApp }
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
-import {
-    getAuth,
-    signInWithEmailAndPassword
-}
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import {
+        auth,
+        signInWithEmailAndPassword
+    } from "/js/firebaseClient.js";
 
+    const form = document.getElementById("loginForm");
+    const btn = document.getElementById("loginBtn");
+    const errorBox = document.getElementById("loginError");
 
-const firebaseConfig = {
+    // Traduce los códigos de error de Firebase a mensajes
+    // entendibles para el usuario final.
+    function mensajeDeError(codigo) {
+        switch (codigo) {
+            case "auth/invalid-email":
+                return "El correo electrónico no tiene un formato válido.";
+            case "auth/user-not-found":
+            case "auth/wrong-password":
+            case "auth/invalid-credential":
+                return "Correo o contraseña incorrectos.";
+            case "auth/too-many-requests":
+                return "Demasiados intentos. Espera un momento y vuelve a intentar.";
+            default:
+                return "No fue posible iniciar sesión. Intenta de nuevo.";
+        }
+    }
 
-    apiKey: "TU_API_KEY_WEB",
+    function mostrarError(texto) {
+        errorBox.textContent = texto;
+        errorBox.classList.remove("d-none");
+    }
 
-    authDomain: "progra-3-auto.firebaseapp.com",
+    function ocultarError() {
+        errorBox.classList.add("d-none");
+    }
 
-    projectId: "progra-3-auto",
-
-    storageBucket: "TU_STORAGE_BUCKET",
-
-    messagingSenderId: "TU_MESSAGING_SENDER_ID",
-
-    appId: "TU_APP_ID"
-
-};
-
-
-const app = initializeApp(firebaseConfig);
-
-const auth = getAuth(app);
-
-
-document
-    .getElementById("loginForm")
-    .addEventListener("submit", async (e) => {
+    form.addEventListener("submit", async (e) => {
 
         e.preventDefault();
+        ocultarError();
 
-        const correo =
-            document.getElementById("correo").value;
+        const correo = document.getElementById("correo").value.trim();
+        const password = document.getElementById("password").value;
 
-        const password =
-            document.getElementById("password").value;
-
+        // Deshabilitamos el botón mientras se procesa la petición
+        // para evitar que el usuario haga doble clic y se disparen
+        // dos inicios de sesión al mismo tiempo.
+        btn.disabled = true;
+        btn.textContent = "Ingresando...";
 
         try {
 
-            const credencial =
-                await signInWithEmailAndPassword(
-                    auth,
-                    correo,
-                    password
-                );
+            // 1) Firebase valida el correo y la contraseña
+            const credencial = await signInWithEmailAndPassword(auth, correo, password);
 
+            // 2) Obtenemos el token que identifica a este usuario
+            const token = await credencial.user.getIdToken();
 
-            const token =
-                await credencial.user.getIdToken();
+            // 3) Se lo mandamos a NUESTRO backend para crear la sesión
+            const respuesta = await fetch("/auth/verify-token", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ token })
+            });
 
-
-            const respuesta =
-                await fetch("/auth/verify-token", {
-
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-
-                    body: JSON.stringify({
-                        token
-                    })
-
-                });
-
-
-            const resultado =
-                await respuesta.json();
-
+            const resultado = await respuesta.json();
 
             if (resultado.success) {
-
-                window.location.href =
-                    resultado.redirect;
-
-            } else {    
-
-                alert(resultado.message);
-
+                window.location.href = resultado.redirect;
+            } else {
+                mostrarError(resultado.message || "No fue posible iniciar sesión.");
             }
 
 
         } catch (error) {
 
             console.error(error);
-
-            alert("Correo o contraseña incorrectos.");
-
+            mostrarError(mensajeDeError(error.code));
+        } finally {
+            btn.disabled = false;
+            btn.textContent = "Iniciar sesión";
         }
 
     });
