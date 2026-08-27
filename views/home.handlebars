@@ -1,174 +1,198 @@
-<!--
+<div class="home-container">
 
-    VISTA: Página de inicio 
-    Es contenido casi todo estático; el único dato dinámico
-    es "usuario" (viene de res.locals en app.js, disponible
-    en TODAS las vistas sin que el controlador lo envíe).
+    <!-- HERO -->
 
--->
-<div class="container mt-5">
+    <section class="hero">
 
-    <!-- ===== Sección "hero" de bienvenida ===== -->
-    <div class="row align-items-center">
+        <div class="hero-content">
 
-        <div class="col-md-6">
-
-            <h1 class="display-4 fw-bold">
-                Bienvenido a la Tienda Virtual
+            <h1>
+                Todo lo que necesitas,
+                en un solo lugar.
             </h1>
 
-            <!--
-                Pequeña personalización: si ya hay sesión activa,
-                saludamos por nombre. Es un cambio de una sola
-                línea que reutiliza una variable que YA existe
-                en el proyecto (no requiere tocar el controlador).
-            -->
             {{#if usuario}}
-                <p class="text-success">
-                    ¡Qué bueno verte de nuevo, {{usuario.nombre}}!
+
+                <p>
+                    Bienvenido nuevamente, {{usuario.nombre}}.
+                    Explora nuestro catalogo y encuentra lo que necesitas.
                 </p>
+
+            {{else}}
+
+                <p>
+                    Descubre productos, compra de forma sencilla
+                    y administra tus pedidos desde cualquier lugar.
+                </p>
+
             {{/if}}
 
-            <p class="lead">
-                Compra los mejores productos de forma rápida y segura.
-            </p>
-
-            <a href="/productos" class="btn btn-primary btn-lg">
-                Ver Catálogo
+            <a href="/productos" class="hero-button">
+                <i class="bi bi-shop"></i>
+                Explorar catalogo
             </a>
 
         </div>
 
-        <div class="col-md-6 text-center">
+        <i class="bi bi-cart3 hero-icon"></i>
 
-            <img
-                src="/img/tienda.png"
-                class="img-fluid"
-                alt="Tienda Virtual"
-            >
+    </section>
 
-        </div>
 
-    </div>
+    <!-- TARJETAS -->
 
-    <hr class="my-5">
+    <section class="features">
 
-    <!--
-        ===== Tarjetas de acceso rápido =====
-        Antes siempre se mostraban "Iniciar Sesión" y "Crear Cuenta",
-        incluso a alguien que YA tenía sesión abierta (no tenía
-        mucho sentido invitar a registrarse a quien ya es cliente).
-        Ahora, si hay sesión activa, esas dos tarjetas se reemplazan
-        por accesos directos al carrito y a "mis pedidos".
-    -->
-    <div class="row">
+        <div class="row g-4">
 
-        <!-- Esta tarjeta es igual para todos los visitantes -->
-        <div class="col-md-4 mb-4">
+            <!-- CATALOGO -->
 
-            <div class="card shadow h-100">
+            <div class="col-md-4">
 
-                <div class="card-body text-center">
+                <div class="feature-card">
 
-                    <h3>Catálogo</h3>
+                    <div class="feature-icon">
+                        <i class="bi bi-grid"></i>
+                    </div>
+
+                    <h3>Catalogo</h3>
 
                     <p>
-
-                        Explora todos nuestros productos disponibles.
-
+                        Explora todos nuestros productos
+                        disponibles y encuentra lo que buscas.
                     </p>
 
                     <a href="/productos" class="btn btn-outline-primary">
-
-                        Ver Productos
-
+                        Ver productos
                     </a>
 
                 </div>
 
             </div>
-            
-        </div>
 
-        {{#if usuario}}
 
-            <!-- Usuario CON sesión: accesos directos a su cuenta -->
-            <div class="col-md-4 mb-4">
-                <div class="card shadow h-100">
-                    <div class="card-body text-center">
-                        <h3>Mi Carrito</h3>
+            {{#if usuario}}
+
+                <!-- CARRITO -->
+
+                <div class="col-md-4">
+
+                    <div class="feature-card">
+
+                        <div class="feature-icon">
+                            <i class="bi bi-cart3"></i>
+                        </div>
+
+                        <h3>Mi carrito</h3>
+
                         <p>
-                            Revisa los productos que has agregado.
+                            Revisa los productos que has agregado
+                            y prepara tu compra.
                         </p>
-                        <a href="/carrito" class="btn btn-outline-success">
-                            Ver Carrito
+
+                        <a href="/carrito" class="btn btn-outline-primary">
+                            Ver carrito
                         </a>
-                    </div>
-                </div>
-            </div>
 
-            <div class="col-md-4 mb-4">
-                <div class="card shadow h-100">
-                    <div class="card-body text-center">
-                        <h3>Mis Pedidos</h3>
+                    </div>
+
+                </div>
+
+
+                <!-- PEDIDOS -->
+
+                <div class="col-md-4">
+
+                    <div class="feature-card">
+
+                        <div class="feature-icon">
+                            <i class="bi bi-box-seam"></i>
+                        </div>
+
+                        <h3>Mis pedidos</h3>
+
                         <p>
-                            Consulta el estado de tus compras anteriores.
+                            Consulta tus compras anteriores
+                            y revisa su estado.
                         </p>
-                        <a href="/cliente/pedidos" class="btn btn-outline-warning">
-                            Ver Pedidos
+
+                        <a href="/cliente/pedidos" class="btn btn-outline-primary">
+                            Ver pedidos
                         </a>
+
                     </div>
+
                 </div>
-            </div>
 
-        {{else}}
+            {{else}}
 
-            <!-- Usuario SIN sesión: invitación a entrar o registrarse -->
-            <div class="col-md-4 mb-4">
-                <div class="card shadow h-100">
-                    <div class="card-body text-center">
-                        <h3>Iniciar Sesión</h3>
+                <!-- LOGIN -->
+
+                <div class="col-md-4">
+
+                    <div class="feature-card">
+
+                        <div class="feature-icon">
+                            <i class="bi bi-person"></i>
+                        </div>
+
+                        <h3>Iniciar sesion</h3>
+
                         <p>
-                            Accede a tu cuenta para realizar compras.
+                            Accede a tu cuenta para realizar
+                            compras y administrar tus pedidos.
                         </p>
-                        <a href="/auth/login" class="btn btn-outline-success">
+
+                        <a href="/auth/login" class="btn btn-outline-primary">
                             Ingresar
                         </a>
-                    </div>
-                </div>
-            </div>
 
-            <div class="col-md-4 mb-4">
-                <div class="card shadow h-100">
-                    <div class="card-body text-center">
-                        <h3>Crear Cuenta</h3>
+                    </div>
+
+                </div>
+
+
+                <!-- REGISTRO -->
+
+                <div class="col-md-4">
+
+                    <div class="feature-card">
+
+                        <div class="feature-icon">
+                            <i class="bi bi-person-plus"></i>
+                        </div>
+
+                        <h3>Crear cuenta</h3>
+
                         <p>
-                            Regístrate y disfruta de todas las funciones.
+                            Registrate para comenzar a comprar
+                            en MarketGo.
                         </p>
-                        <a href="/auth/register" class="btn btn-outline-warning">
+
+                        <a href="/auth/register" class="btn btn-outline-primary">
                             Registrarse
                         </a>
+
                     </div>
+
                 </div>
 
-            </div>
+            {{/if}}
 
-        {{/if}}
-
-    </div>
-
-    <div class="row mt-5">
-
-        <div class="col-md-12">
-
-            <div class="alert alert-info text-center">
-
-                Compra de forma segura utilizando Firebase Authentication y nuestro sistema de pedidos.
-
-            </div>
-            
         </div>
-        
-    </div>
+
+    </section>
+
+
+    <!-- INFORMACION -->
+
+    <section class="info-section">
+
+        <i class="bi bi-shield-check"></i>
+
+        Compra de forma segura utilizando
+        Firebase Authentication y nuestro sistema de pedidos.
+
+    </section>
 
 </div>

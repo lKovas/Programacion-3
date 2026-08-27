@@ -1,34 +1,13 @@
-<!--
-
-    PARTIAL: Barra de navegación (navbar)
-
-    Este archivo se inserta en el layout principal (main.handlebars)
-    con {{> navbar}}, por eso puede usarse en TODAS las páginas.
-
-    Usa dos variables globales que YA están disponibles en
-    cualquier vista sin que el controlador las tenga que enviar,
-    porque se definen una sola vez en app.js con res.locals:
-
-        app.use((req, res, next) => {
-          res.locals.usuario = req.session.usuario || null;
-          res.locals.esAdmin = req.session.usuario?.rol === 'admin' || false;
-          next();
-        });
-
-    - usuario:  objeto de sesión del cliente logueado, o null.
-    - esAdmin:  true solo si usuario.rol === 'admin'.
-    
--->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<nav class="navbar navbar-expand-lg marketgo-navbar">
 
     <div class="container">
 
-        <!-- Marca de la tienda: siempre lleva al catálogo (ver app.js: "/" redirige a "/productos") -->
-        <a class="navbar-brand" href="/">
-            MarketGo
+        <a class="navbar-brand marketgo-brand" href="/">
+            <span class="brand-icon">M</span>
+            <span>MarketGo</span>
         </a>
 
-        <!-- Botón "hamburguesa" para pantallas pequeñas -->
+
         <button
             class="navbar-toggler"
             type="button"
@@ -36,97 +15,184 @@
             data-bs-target="#navbarPrincipal"
             aria-controls="navbarPrincipal"
             aria-expanded="false"
-            aria-label="Mostrar menú"
+            aria-label="Mostrar menu"
         >
             <span class="navbar-toggler-icon"></span>
         </button>
 
+
         <div class="collapse navbar-collapse" id="navbarPrincipal">
 
-            <!-- ===== Enlaces principales (izquierda) ===== -->
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <!-- MENU PRINCIPAL -->
 
-                <!-- Visible siempre, con o sin sesión -->
+            <ul class="navbar-nav me-auto">
+
                 <li class="nav-item">
-                    <a class="nav-link" href="/productos">
-                        Inicio / Catálogo
+
+                    <a
+                        class="nav-link"
+                        href="/"
+                    >
+                        Inicio
                     </a>
+
                 </li>
 
-                <!--
-                    Todo lo que depende de tener sesión activa
-                    (carrito, pedidos, admin) va DENTRO de este
-                    mismo {{#if usuario}}. Antes "esAdmin" estaba
-                    suelto y separado; se anida aquí como buena
-                    práctica defensiva: así, aunque en el futuro
-                    cambie la lógica de esAdmin en app.js, nunca
-                    se podrá mostrar un enlace de administración
-                    a alguien sin sesión.
-                -->
+
+                <li class="nav-item">
+
+                    <a
+                        class="nav-link"
+                        href="/productos"
+                    >
+                        Catalogo
+                    </a>
+
+                </li>
+
+
                 {{#if usuario}}
 
+                    <!-- CARRITO -->
+
                     <li class="nav-item">
-                        <a class="nav-link" href="/carrito">
+
+                        <a
+                            class="nav-link"
+                            href="/carrito"
+                        >
                             Carrito
                         </a>
+
                     </li>
 
-                    <li class="nav-item">
-                        <a class="nav-link" href="/cliente/pedidos">
-                            Mis pedidos
-                        </a>
-                    </li>
+
+                    <!-- PEDIDOS DEL CLIENTE -->
+
+                    {{#unless esAdmin}}
+
+                        <li class="nav-item">
+
+                            <a
+                                class="nav-link"
+                                href="/pedidos"
+                            >
+                                Mis pedidos
+                            </a>
+
+                        </li>
+
+                    {{/unless}}
+
+
+                    <!-- ADMINISTRACION -->
 
                     {{#if esAdmin}}
+
                         <li class="nav-item">
-                            <a class="nav-link" href="/admin">
-                                Administración
+
+                            <a
+                                class="nav-link admin-link"
+                                href="/admin"
+                            >
+                                Administracion
                             </a>
+
                         </li>
+
                     {{/if}}
 
                 {{/if}}
 
             </ul>
 
-            <!-- ===== Enlaces de cuenta (derecha) ===== -->
-            <ul class="navbar-nav">
+
+            <!-- MENU DE USUARIO -->
+
+            <ul class="navbar-nav align-items-lg-center">
 
                 {{#if usuario}}
 
-                    <!-- Saludo con el nombre guardado en la sesión (ver authController.verifyToken) -->
-                    <li class="nav-item">
-                        <span class="nav-link">
-                            Hola, {{usuario.nombre}}
-                        </span>
-                    </li>
+                    <li class="nav-item dropdown">
 
-                    <li class="nav-item">
-                        <a class="nav-link" href="/cliente/perfil">
-                            Mi perfil
-                        </a>
-                    </li>
+                        <a
+                            class="nav-link dropdown-toggle user-menu"
+                            href="#"
+                            role="button"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                        >
 
-                    <!-- GET /auth/logout destruye la sesión (ver authController.logout) -->
-                    <li class="nav-item">
-                        <a class="nav-link" href="/auth/logout">
-                            Cerrar sesión
+                            <span class="user-avatar">
+                                {{usuario.nombre.[0]}}
+                            </span>
+
+                            <span>
+                                {{usuario.nombre}}
+                            </span>
+
                         </a>
+
+
+                        <ul class="dropdown-menu dropdown-menu-end">
+
+                            <li>
+
+                                <a
+                                    class="dropdown-item"
+                                    href="/cliente/perfil"
+                                >
+                                    Mi perfil
+                                </a>
+
+                            </li>
+
+
+                            <li>
+
+                                <hr class="dropdown-divider">
+
+                            </li>
+
+
+                            <li>
+
+                                <a
+                                    class="dropdown-item logout-item"
+                                    href="/auth/logout"
+                                >
+                                    Cerrar sesion
+                                </a>
+
+                            </li>
+
+                        </ul>
+
                     </li>
 
                 {{else}}
 
-                    <!-- Sin sesión: se ofrecen las dos entradas posibles -->
                     <li class="nav-item">
-                        <a class="nav-link" href="/auth/login">
-                            Iniciar sesión
+
+                        <a
+                            class="nav-link login-link"
+                            href="/auth/login"
+                        >
+                            Iniciar sesion
                         </a>
+
                     </li>
 
+
                     <li class="nav-item">
-                        <a class="nav-link" href="/auth/register">
-                            Registrarse
+
+                        <a
+                            class="btn btn-register"
+                            href="/auth/register"
+                        >
+                            Crear cuenta
                         </a>
+
                     </li>
 
                 {{/if}}
@@ -134,5 +200,7 @@
             </ul>
 
         </div>
+
     </div>
+
 </nav>

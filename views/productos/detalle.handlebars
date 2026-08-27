@@ -1,159 +1,223 @@
 <!--
-  
     VISTA: Detalle de producto
-    Los nombres de campo van todos en minúscula
-    ({{producto.nombrecategoria}}, {{producto.idproducto}})
-    porque así es como PostgreSQL devuelve las columnas: si el
-    SQL no usa comillas dobles, los identificadores se guardan
-    en minúscula (ver models/productoModel.js). Escribir
-    "nombreCategoria" en camelCase aquí simplemente no
-    encontraría el dato y se vería en blanco.
- 
 -->
-<div class="container mt-5">
 
-    <div class="row">
+<div class="container producto-detalle">
 
-        <div class="col-md-5">
-            
-            <img
-                src="{{producto.imagen}}"
-                class="img-fluid rounded shadow"
-                alt="{{producto.nombre}}"
+    <div class="detalle-card">
 
-            >
+        <div class="row g-0">
 
-        </div>
+            <!-- IMAGEN -->
+            <div class="col-lg-6">
 
-        <div class="col-md-7">
+                <div class="detalle-imagen-container">
 
-            <h2>{{producto.nombre}}</h2>
+                    <img
+                        src="{{producto.imagen}}"
+                        class="detalle-imagen"
+                        alt="{{producto.nombre}}"
+                    >
 
-            <hr>
+                </div>
 
-            <h4 class="text-success">
-
-                ₡ {{producto.precio}}
-
-            </h4>
-
-            <p>
-
-                <strong>Categoría:</strong>
-
-                {{producto.nombrecategoria}}
-
-            </p>
+            </div>
 
 
-            <!--
-                Antes este texto siempre decía el número de stock,
-                sin importar si era 0. Ahora se distingue entre
-                "hay existencias" y "agotado", usando un badge.
-            -->
-            <p>
+            <!-- INFORMACION -->
+            <div class="col-lg-6">
 
-                <strong>Stock disponible:</strong>
-                {{#if producto.stock}}
-                    {{producto.stock}}
-                {{else}}
-                    <span class="badge bg-danger">Agotado</span>
-                {{/if}}
-            </p>
+                <div class="detalle-info">
 
-            {{#if producto.descripcion}}
-            <p><strong>Descripción:</strong></p>
-            <p>{{producto.descripcion}}</p>
-            {{/if}}
+                    <span class="detalle-categoria">
+                        {{producto.nombrecategoria}}
+                    </span>
 
-            <!--
-                ANTES: el input de cantidad tenía min="1" y
-                max="{{producto.stock}}". Si el stock era 0, eso
-                generaba un rango imposible (min mayor que max) y
-                el formulario igual dejaba "agregar" un producto
-                sin existencias.
 
-                AHORA: si hay stock, se muestra el formulario normal.
-                Si NO hay stock, se muestra un botón deshabilitado
-                y no se renderiza ningún input con rango inválido.
-            -->
-            {{#if producto.stock}}
+                    <h1 class="detalle-titulo">
+                        {{producto.nombre}}
+                    </h1>
 
-                {{#if usuario}}
 
-                    <form action="/carrito/agregar" method="POST">
+                    <hr class="detalle-separador">
 
-                        <input type="hidden" name="idProducto" value="{{producto.idproducto}}">
 
-                        <div class="mb-3">
-                            <label class="form-label">Cantidad</label>
-                            <input
-                                type="number"
-                                class="form-control"
-                                name="cantidad"
-                                value="1"
-                                min="1"
-                                max="{{producto.stock}}"
-                                required
-                            >
-                        </div>
-
-                        <button type="submit" class="btn btn-success">
-                            Agregar al carrito
-                        </button>
-
-                        <a href="/productos" class="btn btn-secondary">
-                            Volver al catálogo
-                        </a>
-
-                    </form>
-
-                {{else}}
-
-                    <!--
-                        NUEVO: /carrito/agregar requiere sesión activa
-                        (ver carritoRoutes.js). Antes, un invitado podía
-                        ver este formulario, darle clic y terminar en
-                        un error inesperado. Ahora se le invita a
-                        iniciar sesión primero.
-                    -->
-                    <div class="alert alert-warning">
-                        Debes <a href="/auth/login">iniciar sesión</a> para agregar productos al carrito.
+                    <div class="detalle-precio">
+                        ₡ {{producto.precio}}
                     </div>
 
-                    <a href="/productos" class="btn btn-secondary">
-                        Volver al catálogo
-                    </a>
 
-                {{/if}}
+                    <div class="detalle-stock">
 
-            {{else}}
+                        <strong>Disponibilidad:</strong>
 
-                <button type="button" class="btn btn-secondary" disabled>
-                    Producto agotado
-                </button>
+                        {{#if producto.stock}}
 
-                <a href="/productos" class="btn btn-outline-secondary">
-                    Volver al catálogo
+                            <span class="badge bg-success">
+                                {{producto.stock}} disponibles
+                            </span>
 
-                </a>
+                        {{else}}
 
-            {{/if}}
+                            <span class="badge bg-danger">
+                                Agotado
+                            </span>
+
+                        {{/if}}
+
+                    </div>
+
+
+                    {{#if producto.descripcion}}
+
+                        <div class="detalle-descripcion">
+
+                            <strong>Descripcion</strong>
+
+                            <p>
+                                {{producto.descripcion}}
+                            </p>
+
+                        </div>
+
+                    {{/if}}
+
+
+                    {{#if producto.stock}}
+
+                        {{#if usuario}}
+
+                            <form
+                                action="/carrito/agregar"
+                                method="POST"
+                                class="detalle-form"
+                            >
+
+                                <input
+                                    type="hidden"
+                                    name="idProducto"
+                                    value="{{producto.idproducto}}"
+                                >
+
+
+                                <div class="mb-3">
+
+                                    <label
+                                        for="cantidad"
+                                        class="form-label"
+                                    >
+                                        Cantidad
+                                    </label>
+
+                                    <input
+                                        type="number"
+                                        id="cantidad"
+                                        class="form-control"
+                                        name="cantidad"
+                                        value="1"
+                                        min="1"
+                                        max="{{producto.stock}}"
+                                        required
+                                    >
+
+                                </div>
+
+
+                                <div class="detalle-acciones">
+
+                                    <button
+                                        type="submit"
+                                        class="btn btn-success"
+                                    >
+                                        <i class="bi bi-cart-plus"></i>
+                                        Agregar al carrito
+                                    </button>
+
+
+                                    <a
+                                        href="/productos"
+                                        class="btn btn-outline-secondary"
+                                    >
+                                        Volver al catalogo
+                                    </a>
+
+                                </div>
+
+                            </form>
+
+                        {{else}}
+
+                            <div class="detalle-login-alert">
+
+                                Debes
+                                <a href="/auth/login">
+                                    iniciar sesion
+                                </a>
+                                para agregar productos al carrito.
+
+                            </div>
+
+
+                            <div class="detalle-acciones">
+
+                                <a
+                                    href="/productos"
+                                    class="btn btn-outline-secondary"
+                                >
+                                    Volver al catalogo
+                                </a>
+
+                            </div>
+
+                        {{/if}}
+
+                    {{else}}
+
+                        <div class="detalle-acciones">
+
+                            <button
+                                type="button"
+                                class="btn btn-secondary"
+                                disabled
+                            >
+                                Producto agotado
+                            </button>
+
+
+                            <a
+                                href="/productos"
+                                class="btn btn-outline-secondary"
+                            >
+                                Volver al catalogo
+                            </a>
+
+                        </div>
+
+                    {{/if}}
+
+                </div>
+
+            </div>
 
         </div>
 
     </div>
 
-    <hr class="mt-5">
 
     {{#if usuario}}
-        <div class="row">
-            <div class="col-md-12 text-center">
-                <a href="/carrito" class="btn btn-primary">
-                    Ver Carrito
-                </a>
-            </div>
+
+        <div class="text-center mt-4">
+
+            <a
+                href="/carrito"
+                class="btn btn-primary"
+            >
+                <i class="bi bi-cart"></i>
+                Ver carrito
+            </a>
+
         </div>
+
     {{/if}}
 
 </div>

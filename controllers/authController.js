@@ -1,5 +1,5 @@
 const admin = require('../config/firebase');
-const Cliente = require('../models/Cliente');
+const Cliente = require('../models/clienteModel');
 
 const authController = {
 
@@ -19,31 +19,48 @@ const authController = {
       const { token, nombre, telefono, direccion } = req.body;
 
       // Verificar el token con Firebase Admin
-      const decoded = await admin.auth().verifyIdToken(token);
+      const decoded = await admin.verifyIdToken(token);
       const { email, uid } = decoded;
 
-      // Buscar si el cliente ya existe en Railway
+      // Determinar rol mediante Custom Claims
+      const rol = decoded.admin === true ? 'admin' : 'cliente';
+
+      // Buscar cliente en PostgreSQL
       let cliente = await Cliente.getByCorreo(email);
 
       // Si no existe, crearlo
       if (!cliente) {
-        cliente = await Cliente.create(nombre || email, email, telefono || '', direccion || '');
+        cliente = await Cliente.create(
+          nombre || email,
+          email,
+          telefono || '',
+          direccion || ''
+        );
       }
 
-      // Guardar sesión
+      // Guardar datos del usuario en la sesion
       req.session.usuario = {
         uid,
         email,
         idCliente: cliente.idcliente,
         nombre: cliente.nombre,
-        rol: 'cliente'
+        rol
       };
 
-      res.json({ success: true, redirect: '/productos' });
+      console.log('Usuario autenticado:', req.session.usuario);
+
+      res.json({
+        success: true,
+        redirect: '/productos'
+      });
 
     } catch (error) {
       console.error('Error al verificar token:', error);
-      res.status(401).json({ success: false, message: 'Token inválido' });
+
+      res.status(401).json({
+        success: false,
+        message: 'Token invalido'
+      });
     }
   },
 

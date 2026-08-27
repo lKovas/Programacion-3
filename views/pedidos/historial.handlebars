@@ -1,0 +1,152 @@
+<div class="container my-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h1 class="fw-bold mb-1">
+                Mis pedidos
+            </h1>
+
+            <p class="text-muted mb-0">
+                Consulta el historial de tus pedidos.
+            </p>
+        </div>
+
+        <div class="admin-page-icon">
+            <i class="bi bi-receipt"></i>
+        </div>
+
+    </div>
+
+
+    {{#if pedidos}}
+
+        <div class="admin-table-container">
+
+            <div class="table-responsive">
+
+                <table class="table admin-table align-middle mb-0">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Pedido</th>
+
+                            <th>Fecha</th>
+
+                            <th>Direccion</th>
+
+                            <th>Total</th>
+
+                            <th>Estado</th>
+
+                            <th class="text-end">Acciones</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {{#each pedidos}}
+
+                            <tr>
+
+                                <td>
+                                    <span class="id-badge">
+                                        #{{this.idpedido}}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <span class="text-muted">
+                                        {{this.fecha}}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <span
+                                        class="admin-address"
+                                        title="{{this.direccionentrega}}"
+                                    >
+                                        {{this.direccionentrega}}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <strong class="admin-order-total">
+                                        ₡ {{this.total}}
+                                    </strong>
+                                </td>
+
+                                <td>
+
+                                    {{#if this.estado}}
+
+                                        <span class="order-status status-{{this.estado}}">
+                                            {{this.estado}}
+                                        </span>
+
+                                    {{else}}
+
+                                        <span class="order-status status-Pendiente">
+                                            Pendiente
+                                        </span>
+
+                                    {{/if}}
+
+                                </td>
+
+                                <td class="text-end">
+
+                                    <a
+                                        href="/pedidos/{{this.idpedido}}"
+                                        class="btn btn-primary btn-sm"
+                                    >
+                                        <i class="bi bi-eye"></i>
+                                        Ver detalle
+                                    </a>
+
+                                </td>
+
+                            </tr>
+
+                        {{/each}}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    {{else}}
+
+        <div class="admin-empty-state">
+
+            <div class="admin-empty-icon">
+                <i class="bi bi-receipt"></i>
+            </div>
+
+            <h4>
+                No tienes pedidos
+            </h4>
+
+            <p>
+                Cuando realices una compra, tus pedidos apareceran aqui.
+            </p>
+
+            <a
+                href="/productos"
+                class="btn btn-primary mt-3"
+            >
+                Ver catalogo
+            </a>
+
+        </div>
+
+    {{/if}}
+
+</div>

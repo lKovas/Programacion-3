@@ -1,0 +1,245 @@
+<div class="container my-5">
+
+    <!-- ENCABEZADO -->
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h1 class="fw-bold mb-1">
+                Pedidos
+            </h1>
+
+            <p class="text-muted mb-0">
+                Administra y actualiza los pedidos de los clientes.
+            </p>
+        </div>
+
+        <div class="admin-page-icon">
+            <i class="bi bi-receipt"></i>
+        </div>
+
+    </div>
+
+
+    {{#if pedidos}}
+
+        <!-- TABLA DE PEDIDOS -->
+
+        <div class="admin-table-container">
+
+            <div class="table-responsive">
+
+                <table class="table admin-table align-middle mb-0">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>ID</th>
+
+                            <th>Cliente</th>
+
+                            <th>Fecha</th>
+
+                            <th>Direccion</th>
+
+                            <th>Total</th>
+
+                            <th>Estado</th>
+
+                            <th class="text-end">
+                                Acciones
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {{#each pedidos}}
+
+                            <tr>
+
+                                <!-- ID -->
+
+                                <td>
+
+                                    <span class="id-badge">
+                                        {{this.idpedido}}
+                                    </span>
+
+                                </td>
+
+
+                                <!-- CLIENTE -->
+
+                                <td>
+
+                                    <div class="admin-client">
+
+                                        <div class="admin-client-avatar">
+                                            <i class="bi bi-person"></i>
+                                        </div>
+
+                                        <strong>
+                                            {{this.nombrecliente}}
+                                        </strong>
+
+                                    </div>
+
+                                </td>
+
+
+                                <!-- FECHA -->
+
+                                <td>
+
+                                    <span class="text-muted">
+                                        {{this.fecha}}
+                                    </span>
+
+                                </td>
+
+
+                                <!-- DIRECCION -->
+
+                                <td>
+
+                                    <span
+                                        class="admin-address"
+                                        title="{{this.direccionentrega}}"
+                                    >
+                                        {{this.direccionentrega}}
+                                    </span>
+
+                                </td>
+
+
+                                <!-- TOTAL -->
+
+                                <td>
+
+                                    <strong class="admin-order-total">
+                                        ₡ {{this.total}}
+                                    </strong>
+
+                                </td>
+
+
+                                <!-- ESTADO ACTUAL -->
+
+                                <td>
+
+                                    {{#if this.estado}}
+
+                                        <span class="order-status status-{{this.estado}}">
+                                            {{this.estado}}
+                                        </span>
+
+                                    {{else}}
+
+                                        <span class="order-status status-Pendiente">
+                                            Pendiente
+                                        </span>
+
+                                    {{/if}}
+
+                                </td>
+
+
+                                <!-- CAMBIAR ESTADO -->
+
+                                <td class="text-end">
+
+                                    <form
+                                        action="/admin/pedidos/{{this.idpedido}}/estado"
+                                        method="POST"
+                                        class="admin-status-form"
+                                    >
+
+                                        <select
+                                            name="estado"
+                                            class="form-select form-select-sm"
+                                            onchange="this.form.submit()"
+                                        >
+
+                                            <option
+                                                value="Pendiente"
+                                                {{#if this.estadoPendiente}}selected{{/if}}
+                                            >
+                                                Pendiente
+                                            </option>
+
+                                            <option
+                                                value="Procesando"
+                                                {{#if this.estadoProcesando}}selected{{/if}}
+                                            >
+                                                Procesando
+                                            </option>
+
+                                            <option
+                                                value="Enviado"
+                                                {{#if this.estadoEnviado}}selected{{/if}}
+                                            >
+                                                Enviado
+                                            </option>
+
+                                            <option
+                                                value="Entregado"
+                                                {{#if this.estadoEntregado}}selected{{/if}}
+                                            >
+                                                Entregado
+                                            </option>
+
+                                            <option
+                                                value="Cancelado"
+                                                {{#if this.estadoCancelado}}selected{{/if}}
+                                            >
+                                                Cancelado
+                                            </option>
+
+                                        </select>
+
+                                    </form>
+
+                                </td>
+
+                            </tr>
+
+                        {{/each}}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+
+    {{else}}
+
+        <!-- SIN PEDIDOS -->
+
+        <div class="admin-empty-state">
+
+            <div class="admin-empty-icon">
+
+                <i class="bi bi-receipt"></i>
+
+            </div>
+
+            <h4>
+                No hay pedidos
+            </h4>
+
+            <p>
+                Actualmente no existen pedidos registrados.
+            </p>
+
+        </div>
+
+    {{/if}}
+
+</div>

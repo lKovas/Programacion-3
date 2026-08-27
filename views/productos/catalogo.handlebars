@@ -1,176 +1,269 @@
 <!--
-  
-    VISTA: Catálogo de productos (con buscador y filtro)
+    VISTA: Catalogo de productos
     "productos" y "categorias" vienen del controlador
     (productoController.index).
-
 -->
-<div class="container mt-5">
 
-    <div class="row mb-4">
+<div class="container catalogo-page">
 
-        <div class="col-md-8">
+    <!-- NOTIFICACION -->
+    <div
+        id="carritoMensaje"
+        class="alert alert-success alert-dismissible fade position-fixed top-0 end-0 m-4 shadow d-none"
+        role="alert"
+        style="z-index: 1055; min-width: 320px;"
+    >
+        <div class="d-flex align-items-center">
+            <i id="carritoMensajeIcono" class="bi bi-check-circle-fill me-2 fs-5"></i>
 
-            <h2>Catálogo de Productos</h2>
+            <div>
+                <strong id="carritoMensajeTitulo">
+                    Producto agregado
+                </strong>
 
+                <div id="carritoMensajeTexto">
+                    Producto agregado al carrito correctamente.
+                </div>
+            </div>
+
+            <button
+                type="button"
+                class="btn-close ms-auto"
+                onclick="cerrarMensajeCarrito()"
+                aria-label="Cerrar"
+            ></button>
+        </div>
+    </div>
+
+
+    <!-- ENCABEZADO -->
+    <div class="catalogo-header">
+
+        <div>
+            <h1 class="catalogo-title">
+                Catalogo de productos
+            </h1>
+
+            <p class="catalogo-subtitle">
+                Encuentra los productos que necesitas de forma rapida y sencilla.
+            </p>
         </div>
 
-        <div class="col-md-4 text-end">
-
-            <a href="/carrito" class="btn btn-success">
-
-                <i class="bi bi-cart"></i>
-
-                Carrito
-
-            </a>
-
-        </div>
+        <a href="/carrito" class="catalogo-cart">
+            <i class="bi bi-cart"></i>
+            Ver carrito
+        </a>
 
     </div>
 
-    <div class="row mb-4">
 
-        <div class="col-md-6">
+    <!-- FILTROS -->
+    <div class="catalogo-filtros">
 
-            <input
-                type="text"
-                id="buscar"
-                class="form-control"
-                placeholder="Buscar producto..."
-            >
+        <div class="row g-3">
 
-        </div>
+            <div class="col-md-6">
 
-        <div class="col-md-6">
-            <select id="categoria" class="form-select">
-                <option value="">Todas las categorías</option>
-                {{#each categorias}}
-                <option value="{{idcategoria}}">{{nombre}}</option>
-                {{/each}}
+                <label for="buscar">
+                    Buscar producto
+                </label>
 
-            </select>
-
-        </div>
-
-
-    </div>
-
-    <div class="row" id="listaProductos">
-
-       
-        {{#each productos}}
-
-        <div
-            class="col-md-4 mb-4 producto"
-            data-categoria="{{idcategoria}}"
-            data-nombre="{{nombre}}"
-        >
-
-            <div class="card shadow h-100">
-
-                <img
-                    src="{{imagen}}"
-                    class="card-img-top"
-                    style="height:250px;object-fit:cover;"
-                    alt="{{nombre}}"
+                <input
+                    type="text"
+                    id="buscar"
+                    class="form-control"
+                    placeholder="Escribe el nombre de un producto..."
                 >
 
-                <div class="card-body">
+            </div>
 
-                    <h4>{{nombre}}</h4>
 
-                    <p>
+            <div class="col-md-6">
 
-                        <strong>Categoría:</strong>
+                <label for="categoria">
+                    Categoria
+                </label>
 
-                        {{nombrecategoria}}
+                <select id="categoria" class="form-select">
 
-                    </p>
+                    <option value="">
+                        Todas las categorias
+                    </option>
 
-                    <p>
+                    {{#each categorias}}
 
-                        <strong>Precio:</strong>
+                        <option value="{{idcategoria}}">
+                            {{nombre}}
+                        </option>
 
-                        ₡ {{precio}}
+                    {{/each}}
 
-                    </p>
+                </select>
 
-                    <!-- Igual que en el detalle: distinguimos "hay stock" de "agotado" -->
-                    <p>
+            </div>
 
-                        <strong>Stock:</strong>
+        </div>
+
+    </div>
+
+
+    <!-- PRODUCTOS -->
+    <div class="row" id="listaProductos">
+
+        {{#each productos}}
+
+            <div
+                class="col-md-4 producto"
+                data-categoria="{{idcategoria}}"
+                data-nombre="{{nombre}}"
+            >
+
+                <div class="card">
+
+                    <img
+                        src="{{imagen}}"
+                        class="card-img-top"
+                        alt="{{nombre}}"
+                    >
+
+
+                    <div class="card-body">
+
+                        <h4>
+                            {{nombre}}
+                        </h4>
+
+                        <p>
+                            <strong>Categoria:</strong>
+                            {{nombrecategoria}}
+                        </p>
+
+
+                        <p>
+                            <strong>Precio:</strong>
+                            ₡ {{precio}}
+                        </p>
+
+
+                        <p>
+
+                            <strong>Stock:</strong>
+
+                            {{#if stock}}
+
+                                {{stock}} unidades
+
+                            {{else}}
+
+                                <span class="badge bg-danger">
+                                    Agotado
+                                </span>
+
+                            {{/if}}
+
+                        </p>
+
+                    </div>
+
+
+                    <div class="card-footer">
+
+                        <a
+                            href="/productos/{{idproducto}}"
+                            class="btn btn-primary w-100 mb-2"
+                        >
+                            Ver detalle
+                        </a>
+
+
                         {{#if stock}}
-                            {{stock}}
+
+                            <form
+                                class="form-agregar-carrito"
+                                action="/carrito/agregar"
+                                method="POST"
+                            >
+
+                                <input
+                                    type="hidden"
+                                    name="idProducto"
+                                    value="{{idproducto}}"
+                                >
+
+                                <input
+                                    type="hidden"
+                                    name="cantidad"
+                                    value="1"
+                                >
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-success w-100 btn-agregar"
+                                >
+                                    <i class="bi bi-cart-plus"></i>
+                                    Agregar al carrito
+                                </button>
+
+                            </form>
+
                         {{else}}
-                            <span class="badge bg-danger">Agotado</span>
-                        {{/if}}
-                    </p>
 
-                </div>
-
-                <div class="card-footer">
-
-                    <a href="/productos/{{idproducto}}" class="btn btn-primary w-100 mb-2">
-                        Ver Detalle
-
-                    </a>
-
-                    <!--
-                        ANTES: este formulario de "cantidad=1 fija"
-                        se mostraba siempre, incluso con stock 0,
-                        dejando "agregar" productos sin existencias.
-                        AHORA: solo aparece si stock > 0; si no, se
-                        muestra un botón deshabilitado.
-                    -->
-                    {{#if stock}}
-                        <form action="/carrito/agregar" method="POST">
-                            <input type="hidden" name="idProducto" value="{{idproducto}}">
-                            <input type="hidden" name="cantidad" value="1">
-                            <button type="submit" class="btn btn-success w-100">
-                                Agregar al carrito
+                            <button
+                                type="button"
+                                class="btn btn-secondary w-100"
+                                disabled
+                            >
+                                Producto agotado
                             </button>
-                        </form>
-                    {{else}}
-                        <button type="button" class="btn btn-secondary w-100" disabled>
-                            Agotado
-                        </button>
-                    {{/if}}
+
+                        {{/if}}
+
+                    </div>
 
                 </div>
 
             </div>
 
-        </div>
 
         {{else}}
 
-        <div class="col-12">
-            <div class="alert alert-info text-center">
-                <h5>No hay productos disponibles.</h5>
-                <p class="mb-0">
-                    Actualmente no existen productos registrados en el catálogo.
-                </p>
+            <div class="col-12">
+
+                <div class="alert alert-info text-center">
+
+                    <h5>
+                        No hay productos disponibles.
+                    </h5>
+
+                    <p class="mb-0">
+                        Actualmente no existen productos registrados en el catalogo.
+                    </p>
+
+                </div>
+
             </div>
-        </div>
 
         {{/each}}
 
     </div>
 
-    <!--
-        NUEVO: mensaje para cuando SÍ hay productos, pero la
-        búsqueda/filtro del usuario no encuentra ninguno.
-        Empieza oculto (d-none) y el script de abajo lo muestra
-        u oculta según haga falta.
-    -->
-    <div id="sinResultados" class="alert alert-secondary text-center d-none">
-        No se encontraron productos que coincidan con tu búsqueda.
+
+    <!-- SIN RESULTADOS -->
+    <div
+        id="sinResultados"
+        class="alert alert-secondary text-center d-none"
+    >
+        No se encontraron productos que coincidan con tu busqueda.
     </div>
 
 </div>
 
+
 <script>
+
+    /* ==========================================
+       FILTROS DEL CATALOGO
+       ========================================== */
 
     const txtBuscar = document.getElementById("buscar");
     const cboCategoria = document.getElementById("categoria");
@@ -178,12 +271,11 @@
 
     function filtrar() {
 
-        // trim() evita que espacios en blanco al inicio/final
-        // cuenten como si el usuario estuviera buscando algo.
         const texto = txtBuscar.value.trim().toLowerCase();
         const categoria = cboCategoria.value;
 
         const productos = document.querySelectorAll(".producto");
+
         let visibles = 0;
 
         productos.forEach(producto => {
@@ -203,21 +295,186 @@
 
             producto.style.display = mostrar ? "" : "none";
 
-            if (mostrar) visibles++;
+            if (mostrar) {
+                visibles++;
+            }
 
         });
 
-        // Si el catálogo tiene productos pero el filtro los ocultó
-        // todos, mostramos el aviso de "sin resultados".
-        sinResultados.classList.toggle("d-none", visibles !== 0 || productos.length === 0);
+        sinResultados.classList.toggle(
+            "d-none",
+            visibles !== 0 || productos.length === 0
+        );
 
     }
 
-    // Si no hay ningún ".producto" en la página (catálogo vacío),
-    // ni siquiera enganchamos los eventos: no tiene sentido filtrar nada.
     if (txtBuscar && cboCategoria) {
+
         txtBuscar.addEventListener("keyup", filtrar);
+
         cboCategoria.addEventListener("change", filtrar);
+
+    }
+
+
+    /* ==========================================
+       AGREGAR AL CARRITO
+       ========================================== */
+
+    const formulariosCarrito = document.querySelectorAll(
+        ".form-agregar-carrito"
+    );
+
+    formulariosCarrito.forEach(formulario => {
+
+        formulario.addEventListener("submit", async function(event) {
+
+            event.preventDefault();
+
+            const boton = formulario.querySelector(".btn-agregar");
+
+            const textoOriginal = boton.innerHTML;
+
+            boton.disabled = true;
+
+            boton.innerHTML = `
+                <span
+                    class="spinner-border spinner-border-sm me-1"
+                    role="status"
+                    aria-hidden="true"
+                ></span>
+                Agregando...
+            `;
+
+            try {
+
+                const formData = new FormData(formulario);
+
+                const response = await fetch(
+                    formulario.action,
+                    {
+                        method: "POST",
+                        body: new URLSearchParams(formData),
+                        headers: {
+                            "Content-Type": "application/x-www-form-urlencoded"
+                        }
+                    }
+                );
+
+                const data = await response.json();
+
+                if (data.success) {
+
+                    mostrarMensajeCarrito(
+                        "success",
+                        "Producto agregado",
+                        data.message || "El producto fue agregado al carrito correctamente."
+                    );
+
+                } else {
+
+                    mostrarMensajeCarrito(
+                        "danger",
+                        "No se pudo agregar",
+                        data.message || "No fue posible agregar el producto al carrito."
+                    );
+
+                }
+
+            } catch (error) {
+
+                console.error("Error al agregar al carrito:", error);
+
+                mostrarMensajeCarrito(
+                    "danger",
+                    "Error",
+                    "Ocurrio un error al agregar el producto al carrito."
+                );
+
+            } finally {
+
+                boton.disabled = false;
+
+                boton.innerHTML = textoOriginal;
+
+            }
+
+        });
+
+    });
+
+
+    /* ==========================================
+       MOSTRAR NOTIFICACION
+       ========================================== */
+
+    let timeoutMensajeCarrito;
+
+    function mostrarMensajeCarrito(tipo, titulo, texto) {
+
+        const mensaje = document.getElementById("carritoMensaje");
+        const tituloElemento = document.getElementById("carritoMensajeTitulo");
+        const textoElemento = document.getElementById("carritoMensajeTexto");
+        const icono = document.getElementById("carritoMensajeIcono");
+
+        clearTimeout(timeoutMensajeCarrito);
+
+        mensaje.classList.remove(
+            "d-none",
+            "alert-success",
+            "alert-danger",
+            "show"
+        );
+
+        if (tipo === "success") {
+
+            mensaje.classList.add("alert-success");
+
+            icono.className =
+                "bi bi-check-circle-fill me-2 fs-5";
+
+        } else {
+
+            mensaje.classList.add("alert-danger");
+
+            icono.className =
+                "bi bi-exclamation-triangle-fill me-2 fs-5";
+
+        }
+
+        tituloElemento.textContent = titulo;
+
+        textoElemento.textContent = texto;
+
+        requestAnimationFrame(() => {
+            mensaje.classList.add("show");
+        });
+
+        timeoutMensajeCarrito = setTimeout(() => {
+
+            cerrarMensajeCarrito();
+
+        }, 3500);
+
+    }
+
+
+    /* ==========================================
+       CERRAR NOTIFICACION
+       ========================================== */
+
+    function cerrarMensajeCarrito() {
+
+        const mensaje = document.getElementById("carritoMensaje");
+
+        mensaje.classList.remove("show");
+
+        setTimeout(() => {
+
+            mensaje.classList.add("d-none");
+
+        }, 150);
+
     }
 
 </script>

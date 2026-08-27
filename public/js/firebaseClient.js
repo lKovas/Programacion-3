@@ -9,7 +9,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 const firebaseConfig = {
-  apiKey: "TU_API_KEY",
+  apiKey: "AIzaSyDG6y5SRRRz0jbeIBZaaSbkbYa_i6HlHRg",
   authDomain: "progra-3-auto.firebaseapp.com",
   projectId: "progra-3-auto",
   storageBucket: "progra-3-auto.firebasestorage.app",

@@ -1,0 +1,493 @@
+<div class="container my-5">
+
+    <!-- ENCABEZADO -->
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h1 class="fw-bold mb-1">Mi Carrito</h1>
+            <p class="text-muted mb-0">
+                Revisa tus productos antes de confirmar tu compra.
+            </p>
+        </div>
+
+        <a href="/productos" class="btn btn-outline-primary">
+            <i class="bi bi-arrow-left"></i>
+            Seguir comprando
+        </a>
+
+    </div>
+
+
+    {{#if items.length}}
+
+    <div class="row g-4">
+
+        <!-- =====================================
+             PRODUCTOS DEL CARRITO
+             ===================================== -->
+
+        <div class="col-lg-8">
+
+            <div class="card border-0 shadow-sm rounded-4">
+
+                <div class="card-body p-4">
+
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+
+                        <h4 class="fw-bold mb-0">
+                            Productos
+                        </h4>
+
+                        <span class="badge bg-primary-subtle text-primary px-3 py-2">
+                            {{items.length}} producto(s)
+                        </span>
+
+                    </div>
+
+
+                    {{#each items}}
+
+                    <div class="cart-product">
+
+                        <div class="row align-items-center g-3">
+
+                            <!-- IMAGEN -->
+
+                            <div class="col-4 col-md-2">
+
+                                <div class="cart-image">
+
+                                    <img
+                                        src="{{imagen}}"
+                                        alt="{{nombre}}"
+                                    >
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- INFORMACION -->
+
+                            <div class="col-8 col-md-4">
+
+                                <h5 class="fw-bold mb-1">
+                                    {{nombre}}
+                                </h5>
+
+                                <p class="text-muted mb-0">
+                                    ₡ {{precio}} por unidad
+                                </p>
+
+                            </div>
+
+
+                            <!-- CANTIDAD -->
+
+                            <div class="col-6 col-md-3">
+
+                                <label class="form-label small text-muted mb-1">
+                                    Cantidad
+                                </label>
+
+                                <form
+                                    action="/carrito/actualizar/{{iddetalle}}"
+                                    method="POST"
+                                >
+
+                                    <div class="input-group">
+
+                                        <input
+                                            type="number"
+                                            name="cantidad"
+                                            value="{{cantidad}}"
+                                            min="1"
+                                            class="form-control cantidad-input"
+                                            data-precio="{{precio}}"
+                                            data-subtotal-target="subtotal-{{iddetalle}}"
+                                            required
+                                        >
+
+                                        <button
+                                            type="submit"
+                                            class="btn btn-outline-primary"
+                                            title="Actualizar cantidad"
+                                        >
+                                            <i class="bi bi-arrow-repeat"></i>
+                                        </button>
+
+                                    </div>
+
+                                </form>
+
+                            </div>
+
+
+                            <!-- SUBTOTAL -->
+
+                            <div class="col-5 col-md-2 text-md-end">
+
+                                <small class="text-muted d-block">
+                                    Subtotal
+                                </small>
+
+                                <strong
+                                    id="subtotal-{{iddetalle}}"
+                                    class="text-success subtotal"
+                                    data-precio="{{precio}}"
+                                    data-cantidad="{{cantidad}}"
+                                >
+                                    ₡ {{precio}}
+                                </strong>
+
+                            </div>
+
+
+                            <!-- ELIMINAR -->
+
+                            <div class="col-1 text-end">
+
+                                <form
+                                    action="/carrito/eliminar/{{iddetalle}}"
+                                    method="POST"
+                                >
+
+                                    <button
+                                        type="submit"
+                                        class="btn btn-sm btn-outline-danger"
+                                        title="Eliminar producto"
+                                    >
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+
+                                </form>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    {{/each}}
+
+
+                    <!-- VACIAR -->
+
+                    <div class="border-top pt-3 mt-3">
+
+                        <form
+                            action="/carrito/vaciar"
+                            method="POST"
+                            class="text-end"
+                        >
+
+                            <button
+                                type="submit"
+                                class="btn btn-outline-danger btn-sm"
+                            >
+                                <i class="bi bi-trash"></i>
+                                Vaciar carrito
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================
+             RESUMEN DE COMPRA
+             ===================================== -->
+
+        <div class="col-lg-4">
+
+            <div class="card border-0 shadow-sm rounded-4 checkout-card">
+
+                <div class="card-body p-4">
+
+                    <h4 class="fw-bold mb-4">
+                        Resumen de compra
+                    </h4>
+
+
+                    <div class="d-flex justify-content-between mb-3">
+
+                        <span class="text-muted">
+                            Productos
+                        </span>
+
+                        <span>
+                            {{items.length}}
+                        </span>
+
+                    </div>
+
+
+                    <hr>
+
+
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+
+                        <span class="fw-bold fs-5">
+                            Total
+                        </span>
+
+                        <span class="fw-bold fs-4 text-success">
+                            ₡ {{total}}
+                        </span>
+
+                    </div>
+
+
+                    <!-- DIRECCION -->
+
+                    <form
+                        action="/pedidos/crear"
+                        method="POST"
+                    >
+
+                        <div class="mb-3">
+
+                            <label
+                                for="direccionEntrega"
+                                class="form-label fw-semibold"
+                            >
+                                Dirección de entrega
+                            </label>
+
+                            <textarea
+                                id="direccionEntrega"
+                                name="direccionEntrega"
+                                class="form-control"
+                                rows="3"
+                                placeholder="Ingrese su dirección de entrega"
+                                minlength="10"
+                                required
+                            ></textarea>
+
+                        </div>
+
+
+                        <button
+                            type="submit"
+                            class="btn btn-success w-100 py-2 fw-semibold"
+                        >
+                            <i class="bi bi-check-circle"></i>
+                            Confirmar compra
+                        </button>
+
+                    </form>
+
+
+                    <a
+                        href="/productos"
+                        class="btn btn-outline-secondary w-100 mt-2"
+                    >
+                        Seguir comprando
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    {{else}}
+
+    <!-- =====================================
+         CARRITO VACIO
+         ===================================== -->
+
+    <div class="empty-cart">
+
+        <div class="empty-cart-icon">
+            <i class="bi bi-cart-x"></i>
+        </div>
+
+        <h2 class="fw-bold mt-4">
+            Tu carrito esta vacio
+        </h2>
+
+        <p class="text-muted mb-4">
+            Todavia no has agregado productos a tu carrito.
+        </p>
+
+        <a
+            href="/productos"
+            class="btn btn-primary px-4 py-2"
+        >
+            <i class="bi bi-shop"></i>
+            Explorar catalogo
+        </a>
+
+    </div>
+
+    {{/if}}
+
+</div>
+
+
+<style>
+
+    /* =========================
+       CARRITO
+       ========================= */
+
+    .cart-product {
+        padding: 20px 0;
+        border-bottom: 1px solid #eef0f3;
+    }
+
+    .cart-product:last-child {
+        border-bottom: none;
+    }
+
+
+    .cart-image {
+        width: 100%;
+        height: 100px;
+        background: #f5f7fb;
+        border-radius: 14px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .cart-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+
+    .cantidad-input {
+        text-align: center;
+        font-weight: 600;
+    }
+
+
+    .subtotal {
+        font-size: 1.05rem;
+    }
+
+
+    /* =========================
+       RESUMEN
+       ========================= */
+
+    .checkout-card {
+        position: sticky;
+        top: 90px;
+    }
+
+
+    /* =========================
+       CARRITO VACIO
+       ========================= */
+
+    .empty-cart {
+        background: white;
+        border-radius: 20px;
+        padding: 80px 30px;
+        text-align: center;
+        box-shadow: 0 8px 25px rgba(15, 23, 42, 0.06);
+    }
+
+    .empty-cart-icon {
+        width: 90px;
+        height: 90px;
+        margin: auto;
+        border-radius: 50%;
+        background: #eff6ff;
+        color: #2563eb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+    }
+
+
+    /* =========================
+       RESPONSIVE
+       ========================= */
+
+    @media (max-width: 768px) {
+
+        .cart-image {
+            height: 85px;
+        }
+
+        .checkout-card {
+            position: static;
+        }
+
+    }
+
+</style>
+
+
+<script>
+
+    function formatoColones(numero) {
+
+        return new Intl.NumberFormat("es-CR").format(numero);
+
+    }
+
+
+    function recalcularSubtotal(celda) {
+
+        const precio = Number(celda.dataset.precio);
+
+        const cantidad = Number(celda.dataset.cantidad);
+
+        celda.textContent =
+            "₡ " + formatoColones(precio * cantidad);
+
+    }
+
+
+    // Calcular subtotales al cargar
+
+    document
+        .querySelectorAll("td[data-precio][data-cantidad], strong[data-precio][data-cantidad]")
+        .forEach(recalcularSubtotal);
+
+
+    // Actualizar subtotal mientras cambia la cantidad
+
+    document
+        .querySelectorAll(".cantidad-input")
+        .forEach((input) => {
+
+            input.addEventListener("input", () => {
+
+                const destino =
+                    document.getElementById(
+                        input.dataset.subtotalTarget
+                    );
+
+                if (!destino) return;
+
+                const cantidad =
+                    Number(input.value) || 0;
+
+                destino.dataset.cantidad = cantidad;
+
+                recalcularSubtotal(destino);
+
+            });
+
+        });
+
+</script>

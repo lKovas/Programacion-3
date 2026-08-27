@@ -1,0 +1,133 @@
+<div class="container my-5">
+
+    <div class="mb-4">
+
+        <a href="/admin/categorias" class="admin-back-link">
+            <i class="bi bi-arrow-left"></i>
+            Volver a categorias
+        </a>
+
+        <h1 class="fw-bold mt-3 mb-1">
+
+            {{#if categoria}}
+                Editar categoria
+            {{else}}
+                Nueva categoria
+            {{/if}}
+
+        </h1>
+
+        <p class="text-muted mb-0">
+
+            {{#if categoria}}
+                Actualiza la informacion de la categoria.
+            {{else}}
+                Agrega una nueva categoria para organizar los productos.
+            {{/if}}
+
+        </p>
+
+    </div>
+
+
+    <div class="admin-form-container">
+
+        <form
+            action="{{#if categoria}}/admin/categorias/{{categoria.idcategoria}}/editar{{else}}/admin/categorias/nueva{{/if}}"
+            method="POST"
+        >
+
+            <div class="form-section">
+
+                <div class="form-section-header">
+
+                    <div class="form-section-icon">
+                        <i class="bi bi-tags"></i>
+                    </div>
+
+                    <div>
+
+                        <h4>Informacion de la categoria</h4>
+
+                        <p>
+                            Datos de la categoria.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="mb-4">
+
+                    <label for="nombre" class="form-label">
+                        Nombre
+                    </label>
+
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="nombre"
+                        name="nombre"
+                        value="{{categoria.nombre}}"
+                        placeholder="Ej. Frutas y verduras"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="mb-3">
+
+                    <label for="descripcion" class="form-label">
+                        Descripcion
+                    </label>
+
+                    <textarea
+                        class="form-control"
+                        id="descripcion"
+                        name="descripcion"
+                        rows="5"
+                        placeholder="Describe brevemente esta categoria..."
+                    >{{categoria.descripcion}}</textarea>
+
+                </div>
+
+            </div>
+
+
+            <div class="form-actions">
+
+                <a
+                    href="/admin/categorias"
+                    class="btn btn-light"
+                >
+                    Cancelar
+                </a>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+
+                    {{#if categoria}}
+
+                        <i class="bi bi-check-lg"></i>
+                        Actualizar categoria
+
+                    {{else}}
+
+                        <i class="bi bi-plus-lg"></i>
+                        Crear categoria
+
+                    {{/if}}
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>

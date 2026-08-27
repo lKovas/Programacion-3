@@ -1,9 +1,10 @@
 const adminMiddleware = (req, res, next) => {
-  if (req.session && req.session.admin === true) {
+
+  if (req.session && req.session.usuario?.rol === 'admin') {
     return next();
   }
 
-  return res.redirect('/admin/login');
+  return res.redirect('/productos');
 };
 
 module.exports = adminMiddleware;

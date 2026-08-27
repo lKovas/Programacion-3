@@ -1,5 +1,5 @@
-const Producto = require('../models/Producto');
-const Categoria = require('../models/Categoria');
+const Producto = require('../models/productoModel');
+const Categoria = require('../models/categoriaModel');
 
 const productoController = {
 
@@ -8,7 +8,11 @@ const productoController = {
     try {
       const productos = await Producto.getAll();
       const categorias = await Categoria.getAll();
-      res.render('productos/index', { productos, categorias });
+      res.render('productos/catalogo', {
+        productos,
+        categorias,
+        title: 'Catalogo'
+      });
     } catch (error) {
       console.error(error);
       res.status(500).render('error', { mensaje: 'Error al obtener productos' });
@@ -31,10 +35,18 @@ const productoController = {
   adminIndex: async (req, res) => {
     try {
       const productos = await Producto.getAll();
-      res.render('admin/productos/index', { productos });
+
+      res.render('admin/productos', {
+        productos,
+        title: 'Gestion de Productos'
+      });
+
     } catch (error) {
       console.error(error);
-      res.status(500).render('error', { mensaje: 'Error al obtener productos' });
+
+      res.status(500).render('error', {
+        mensaje: 'Error al obtener productos'
+      });
     }
   },
 
@@ -52,8 +64,23 @@ const productoController = {
   // POST /admin/productos/nuevo
   create: async (req, res) => {
     try {
-      const { nombre, precio, imagen, stock, idCategoria } = req.body;
-      await Producto.create(nombre, precio, imagen, stock, idCategoria);
+      const {
+        nombre,
+        precio,
+        imagen,
+        stock,
+        idCategoria,
+        descripcion
+      } = req.body;
+
+      await Producto.create(
+        nombre,
+        precio,
+        imagen,
+        stock,
+        idCategoria,
+        descripcion
+      );
       res.redirect('/admin/productos');
     } catch (error) {
       console.error(error);
@@ -77,8 +104,24 @@ const productoController = {
   // POST /admin/productos/:id/editar
   update: async (req, res) => {
     try {
-      const { nombre, precio, imagen, stock, idCategoria } = req.body;
-      await Producto.update(req.params.id, nombre, precio, imagen, stock, idCategoria);
+      const {
+        nombre,
+        precio,
+        imagen,
+        stock,
+        idCategoria,
+        descripcion
+      } = req.body;
+
+      await Producto.update(
+        req.params.id,
+        nombre,
+        precio,
+        imagen,
+        stock,
+        idCategoria,
+        descripcion
+      );
       res.redirect('/admin/productos');
     } catch (error) {
       console.error(error);

@@ -1,0 +1,264 @@
+<div class="container my-5">
+
+    <div class="mb-4">
+
+        <a href="/admin/productos" class="admin-back-link">
+            <i class="bi bi-arrow-left"></i>
+            Volver a productos
+        </a>
+
+        <h1 class="fw-bold mt-3 mb-1">
+            {{#if producto}}
+                Editar producto
+            {{else}}
+                Nuevo producto
+            {{/if}}
+        </h1>
+
+        <p class="text-muted mb-0">
+            {{#if producto}}
+                Actualiza la informacion del producto.
+            {{else}}
+                Agrega un nuevo producto al catalogo de MarketGo.
+            {{/if}}
+        </p>
+
+    </div>
+
+
+    <div class="admin-form-container">
+
+        <form
+            action="{{#if producto}}/admin/productos/{{producto.idproducto}}/editar{{else}}/admin/productos/nuevo{{/if}}"
+            method="POST"
+        >
+
+            <div class="row g-4">
+
+                <!-- INFORMACION PRINCIPAL -->
+
+                <div class="col-lg-8">
+
+                    <div class="form-section">
+
+                        <div class="form-section-header">
+
+                            <div class="form-section-icon">
+                                <i class="bi bi-box-seam"></i>
+                            </div>
+
+                            <div>
+                                <h4>Informacion del producto</h4>
+                                <p>
+                                    Datos principales del producto.
+                                </p>
+                            </div>
+
+                        </div>
+
+
+                        <div class="mb-4">
+
+                            <label for="nombre" class="form-label">
+                                Nombre del producto
+                            </label>
+
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="nombre"
+                                name="nombre"
+                                value="{{producto.nombre}}"
+                                placeholder="Ej. Arroz Premium"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="mb-4">
+
+                            <label for="descripcion" class="form-label">
+                                Descripcion
+                            </label>
+
+                            <textarea
+                                class="form-control"
+                                id="descripcion"
+                                name="descripcion"
+                                rows="5"
+                                placeholder="Describe brevemente el producto..."
+                            >{{producto.descripcion}}</textarea>
+
+                        </div>
+
+
+                        <div class="mb-3">
+
+                            <label for="imagen" class="form-label">
+                                URL de la imagen
+                            </label>
+
+                            <input
+                                type="url"
+                                class="form-control"
+                                id="imagen"
+                                name="imagen"
+                                value="{{producto.imagen}}"
+                                placeholder="https://ejemplo.com/imagen.jpg"
+                            >
+
+                            <div class="form-text">
+                                Ingresa la direccion de una imagen disponible en internet.
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- CONFIGURACION -->
+
+                <div class="col-lg-4">
+
+                    <div class="form-section">
+
+                        <div class="form-section-header">
+
+                            <div class="form-section-icon">
+                                <i class="bi bi-sliders"></i>
+                            </div>
+
+                            <div>
+                                <h4>Configuracion</h4>
+                                <p>
+                                    Precio, stock y categoria.
+                                </p>
+                            </div>
+
+                        </div>
+
+
+                        <div class="mb-4">
+
+                            <label for="precio" class="form-label">
+                                Precio
+                            </label>
+
+                            <div class="input-group">
+
+                                <span class="input-group-text">
+                                    ₡
+                                </span>
+
+                                <input
+                                    type="number"
+                                    class="form-control"
+                                    id="precio"
+                                    name="precio"
+                                    value="{{producto.precio}}"
+                                    min="0"
+                                    step="0.01"
+                                    placeholder="0.00"
+                                    required
+                                >
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="mb-4">
+
+                            <label for="stock" class="form-label">
+                                Stock disponible
+                            </label>
+
+                            <input
+                                type="number"
+                                class="form-control"
+                                id="stock"
+                                name="stock"
+                                value="{{producto.stock}}"
+                                min="0"
+                                step="1"
+                                placeholder="0"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="mb-3">
+
+                            <label for="idCategoria" class="form-label">
+                                Categoria
+                            </label>
+
+                            <select
+                                class="form-select"
+                                id="idCategoria"
+                                name="idCategoria"
+                                required
+                            >
+
+                                <option value="">
+                                    Seleccionar categoria
+                                </option>
+
+                                {{#each categorias}}
+
+                                    <option value="{{this.idcategoria}}">
+                                        {{this.nombre}}
+                                    </option>
+
+                                {{/each}}
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="form-actions">
+
+                <a
+                    href="/admin/productos"
+                    class="btn btn-light"
+                >
+                    Cancelar
+                </a>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+
+                    {{#if producto}}
+
+                        <i class="bi bi-check-lg"></i>
+                        Actualizar producto
+
+                    {{else}}
+
+                        <i class="bi bi-plus-lg"></i>
+                        Crear producto
+
+                    {{/if}}
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>

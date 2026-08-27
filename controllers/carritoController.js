@@ -1,6 +1,6 @@
-const Carrito = require('../models/Carrito');
-const DetalleCarrito = require('../models/DetalleCarrito');
-const Producto = require('../models/Producto');
+const Carrito = require('../models/carritoModel')
+const DetalleCarrito = require('../models/detalleCarritoModel');
+const Producto = require('../models/productoModel');
 
 const carritoController = {
 
@@ -29,27 +29,52 @@ const carritoController = {
   // POST /carrito/agregar
   agregar: async (req, res) => {
     try {
+
       const idCliente = req.session.usuario.idCliente;
       const { idProducto, cantidad } = req.body;
 
-      // Verificar que el producto existe y tiene stock
+      // Verificar que el producto existe
       const producto = await Producto.getById(idProducto);
-      if (!producto) return res.status(404).json({ success: false, message: 'Producto no encontrado' });
-      if (producto.stock < cantidad) return res.status(400).json({ success: false, message: 'Stock insuficiente' });
+
+      if (!producto) {
+        return res.status(404).render('error', {
+          mensaje: 'Producto no encontrado'
+        });
+      }
+
+      // Verificar stock
+      if (producto.stock < cantidad) {
+        return res.status(400).render('error', {
+          mensaje: 'Stock insuficiente'
+        });
+      }
 
       // Obtener o crear carrito
       let carrito = await Carrito.getByCliente(idCliente);
+
       if (!carrito) {
         carrito = await Carrito.create(idCliente);
       }
 
-      // Agregar item al carrito
-      await DetalleCarrito.add(carrito.idcarrito, idProducto, cantidad);
+      // Agregar producto
+      await DetalleCarrito.add(
+        carrito.idcarrito,
+        idProducto,
+        cantidad
+      );
 
-      res.json({ success: true, message: 'Producto agregado al carrito' });
+      // Ir al carrito
+      res.redirect('/carrito');
+
     } catch (error) {
+
+      console.error('========== ERROR CARRITO ==========');
       console.error(error);
-      res.status(500).json({ success: false, message: 'Error al agregar al carrito' });
+      console.error('===================================');
+
+      res.status(500).render('error', {
+        mensaje: 'Error al agregar al carrito'
+      });
     }
   },
 

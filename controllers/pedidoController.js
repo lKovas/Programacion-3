@@ -1,7 +1,7 @@
-const Pedido = require('../models/Pedido');
-const DetallePedido = require('../models/DetallePedido');
-const DetalleCarrito = require('../models/DetalleCarrito');
-const Carrito = require('../models/Carrito');
+const Pedido = require('../models/pedidoModel')
+const DetallePedido = require('../models/detallePedidoModel');
+const DetalleCarrito = require('../models/detalleCarritoModel');
+const Carrito = require('../models/carritoModel');
 
 const pedidoController = {
 
@@ -9,11 +9,19 @@ const pedidoController = {
   index: async (req, res) => {
     try {
       const idCliente = req.session.usuario.idCliente;
+
       const pedidos = await Pedido.getByCliente(idCliente);
-      res.render('pedidos/index', { pedidos });
+
+      res.render('pedidos/historial', {
+        pedidos
+      });
+
     } catch (error) {
       console.error(error);
-      res.status(500).render('error', { mensaje: 'Error al obtener pedidos' });
+
+      res.status(500).render('error', {
+        mensaje: 'Error al obtener pedidos'
+      });
     }
   },
 
@@ -71,10 +79,26 @@ const pedidoController = {
   adminIndex: async (req, res) => {
     try {
       const pedidos = await Pedido.getAll();
-      res.render('admin/pedidos/index', { pedidos });
+
+      const pedidosFormateados = pedidos.map(pedido => ({
+        ...pedido,
+        estadoPendiente: pedido.estado === 'Pendiente',
+        estadoProcesando: pedido.estado === 'Procesando',
+        estadoEnviado: pedido.estado === 'Enviado',
+        estadoEntregado: pedido.estado === 'Entregado',
+        estadoCancelado: pedido.estado === 'Cancelado'
+      }));
+
+      res.render('admin/pedidos/index', {
+        pedidos: pedidosFormateados
+      });
+
     } catch (error) {
       console.error(error);
-      res.status(500).render('error', { mensaje: 'Error al obtener pedidos' });
+
+      res.status(500).render('error', {
+        mensaje: 'Error al obtener pedidos'
+      });
     }
   },
 

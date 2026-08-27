@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { verifySession } = require('../middlewares/firebaseAuthMiddleware');
-const { isAdmin } = require('../middlewares/adminMiddleware');
+const isAdmin = require('../middlewares/adminMiddleware');
 const productoController = require('../controllers/productoController');
 const categoriaController = require('../controllers/categoriaController');
 const pedidoController = require('../controllers/pedidoController');

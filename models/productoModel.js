@@ -35,26 +35,35 @@ const Producto = {
   },
 
   // Crear producto
-  create: async (nombre, precio, imagen, stock, idCategoria) => {
+  create: async (nombre, precio, imagen, stock, idCategoria, descripcion) => {
     const result = await pool.query(
-      `INSERT INTO PRODUCTO (nombre, precio, imagen, stock, idCategoria) 
-       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-      [nombre, precio, imagen, stock, idCategoria]
+      `INSERT INTO PRODUCTO
+     (nombre, precio, imagen, stock, idCategoria, descripcion)
+     VALUES ($1, $2, $3, $4, $5, $6)
+     RETURNING *`,
+      [nombre, precio, imagen, stock, idCategoria, descripcion]
     );
+
     return result.rows[0];
   },
 
   // Actualizar producto
-  update: async (id, nombre, precio, imagen, stock, idCategoria) => {
+  update: async (id, nombre, precio, imagen, stock, idCategoria, descripcion) => {
     const result = await pool.query(
-      `UPDATE PRODUCTO 
-       SET nombre=$1, precio=$2, imagen=$3, stock=$4, idCategoria=$5 
-       WHERE idProducto=$6 RETURNING *`,
-      [nombre, precio, imagen, stock, idCategoria, id]
+      `UPDATE PRODUCTO
+     SET nombre = $1,
+         precio = $2,
+         imagen = $3,
+         stock = $4,
+         idCategoria = $5,
+         descripcion = $6
+     WHERE idProducto = $7
+     RETURNING *`,
+      [nombre, precio, imagen, stock, idCategoria, descripcion, id]
     );
+
     return result.rows[0];
   },
-
   // Eliminar producto
   delete: async (id) => {
     await pool.query('DELETE FROM PRODUCTO WHERE idProducto = $1', [id]);

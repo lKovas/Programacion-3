@@ -1,0 +1,246 @@
+<div class="container my-5">
+
+    <!-- ENCABEZADO -->
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+
+            <h1 class="fw-bold mb-1">
+                Detalle del pedido
+            </h1>
+
+            <p class="text-muted mb-0">
+                Informacion de tu pedido #{{pedido.idpedido}}
+            </p>
+
+        </div>
+
+        <a href="/pedidos" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i>
+            Mis pedidos
+        </a>
+
+    </div>
+
+
+    <!-- INFORMACION DEL PEDIDO -->
+
+    <div class="row g-4">
+
+        <div class="col-lg-8">
+
+            <div class="admin-table-container">
+
+                <div class="p-4 border-bottom">
+
+                    <div class="d-flex justify-content-between align-items-center">
+
+                        <div>
+
+                            <h5 class="fw-bold mb-1">
+                                Pedido #{{pedido.idpedido}}
+                            </h5>
+
+                            <small class="text-muted">
+                                {{pedido.fecha}}
+                            </small>
+
+                        </div>
+
+
+                        {{#if pedido.estado}}
+
+                        <span class="order-status status-{{pedido.estado}}">
+                            {{pedido.estado}}
+                        </span>
+
+                        {{else}}
+
+                        <span class="order-status status-Pendiente">
+                            Pendiente
+                        </span>
+
+                        {{/if}}
+
+                    </div>
+
+                </div>
+
+
+                <!-- PRODUCTOS -->
+
+                <div class="table-responsive">
+
+                    <table class="table admin-table align-middle mb-0">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Producto
+                                </th>
+
+                                <th class="text-center">
+                                    Cantidad
+                                </th>
+
+                                <th class="text-end">
+                                    Precio
+                                </th>
+
+                                <th class="text-end">
+                                    Subtotal
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            {{#each detalles}}
+
+                            <tr>
+
+                                <td>
+
+                                    <div class="d-flex align-items-center gap-3">
+
+                                        {{#if this.imagen}}
+
+                                        <img src="{{this.imagen}}" alt="{{this.nombre}}"
+                                            style="width:55px;height:55px;object-fit:cover;border-radius:10px;">
+
+                                        {{/if}}
+
+                                        <strong>
+                                            {{this.nombre}}
+                                        </strong>
+
+                                    </div>
+
+                                </td>
+
+                                <td class="text-center">
+
+                                    <span class="id-badge">
+                                        {{this.cantidad}}
+                                    </span>
+
+                                </td>
+
+                                <td class="text-end">
+                                    ₡ {{this.preciocompra}}
+                                </td>
+
+                                <td class="text-end">
+
+                                    <strong>
+                                        ₡ {{this.subtotal}}
+                                    </strong>
+
+                                </td>
+
+                            </tr>
+
+                            {{else}}
+
+                            <tr>
+
+                                <td colspan="4" class="text-center py-4 text-muted">
+                                    No hay productos registrados en este pedido.
+                                </td>
+
+                            </tr>
+
+                            {{/each}}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- RESUMEN -->
+
+        <div class="col-lg-4">
+
+            <div class="admin-summary-card">
+
+                <h5 class="fw-bold mb-4">
+                    Resumen del pedido
+                </h5>
+
+
+                <div class="admin-summary-row">
+
+                    <span>
+                        Estado
+                    </span>
+
+                    {{#if pedido.estado}}
+
+                    <strong>
+                        {{pedido.estado}}
+                    </strong>
+
+                    {{else}}
+
+                    <strong>
+                        Pendiente
+                    </strong>
+
+                    {{/if}}
+
+                </div>
+
+
+                <div class="admin-summary-row">
+
+                    <span>
+                        Direccion de entrega
+                    </span>
+
+                    <strong class="text-end">
+                        {{pedido.direccionentrega}}
+                    </strong>
+
+                </div>
+
+
+                <hr>
+
+
+                <div class="admin-summary-total">
+
+                    <span>
+                        Total
+                    </span>
+
+                    <strong>
+                        ₡ {{pedido.total}}
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <a href="/productos" class="btn btn-primary w-100 mt-3">
+                <i class="bi bi-cart"></i>
+                Seguir comprando
+            </a>
+
+        </div>
+
+    </div>
+
+</div>

@@ -39,7 +39,7 @@ app.use('/pedidos',   require('./routes/pedidoRoutes'));
 app.use('/cliente',   require('./routes/clienteRoutes'));
 app.use('/admin',     require('./routes/adminRoutes'));
 app.get('/', (req, res) => {
-  res.redirect('/productos');
+  res.render('home');
 });
 app.use((req, res) => {
   res.status(404).render('error', { mensaje: 'Página no encontrada' });
