@@ -1,13 +1,26 @@
+<!--
+  
+    VISTA: Detalle de producto
+    Los nombres de campo van todos en minúscula
+    ({{producto.nombrecategoria}}, {{producto.idproducto}})
+    porque así es como PostgreSQL devuelve las columnas: si el
+    SQL no usa comillas dobles, los identificadores se guardan
+    en minúscula (ver models/productoModel.js). Escribir
+    "nombreCategoria" en camelCase aquí simplemente no
+    encontraría el dato y se vería en blanco.
+ 
+-->
 <div class="container mt-5">
 
     <div class="row">
 
         <div class="col-md-5">
-
+            
             <img
                 src="{{producto.imagen}}"
                 class="img-fluid rounded shadow"
                 alt="{{producto.nombre}}"
+
             >
 
         </div>
@@ -32,80 +45,100 @@
 
             </p>
 
+
+            <!--
+                Antes este texto siempre decía el número de stock,
+                sin importar si era 0. Ahora se distingue entre
+                "hay existencias" y "agotado", usando un badge.
+            -->
             <p>
 
                 <strong>Stock disponible:</strong>
-
-                {{producto.stock}}
-
+                {{#if producto.stock}}
+                    {{producto.stock}}
+                {{else}}
+                    <span class="badge bg-danger">Agotado</span>
+                {{/if}}
             </p>
 
             {{#if producto.descripcion}}
-
-            <p>
-
-                <strong>Descripción:</strong>
-
-            </p>
-
-            <p>
-
-                {{producto.descripcion}}
-
-            </p>
-
+            <p><strong>Descripción:</strong></p>
+            <p>{{producto.descripcion}}</p>
             {{/if}}
 
-            <form
-                action="/carrito/agregar"
-                method="POST"
-            >
+            <!--
+                ANTES: el input de cantidad tenía min="1" y
+                max="{{producto.stock}}". Si el stock era 0, eso
+                generaba un rango imposible (min mayor que max) y
+                el formulario igual dejaba "agregar" un producto
+                sin existencias.
 
-                <input
-                    type="hidden"
-                    name="idProducto"
-                    value="{{producto.idproducto}}"
-                >
+                AHORA: si hay stock, se muestra el formulario normal.
+                Si NO hay stock, se muestra un botón deshabilitado
+                y no se renderiza ningún input con rango inválido.
+            -->
+            {{#if producto.stock}}
 
-                <div class="mb-3">
+                {{#if usuario}}
 
-                    <label class="form-label">
+                    <form action="/carrito/agregar" method="POST">
 
-                        Cantidad
+                        <input type="hidden" name="idProducto" value="{{producto.idproducto}}">
 
-                    </label>
+                        <div class="mb-3">
+                            <label class="form-label">Cantidad</label>
+                            <input
+                                type="number"
+                                class="form-control"
+                                name="cantidad"
+                                value="1"
+                                min="1"
+                                max="{{producto.stock}}"
+                                required
+                            >
+                        </div>
 
-                    <input
-                        type="number"
-                        class="form-control"
-                        name="cantidad"
-                        value="1"
-                        min="1"
-                        max="{{producto.stock}}"
-                        required
-                    >
+                        <button type="submit" class="btn btn-success">
+                            Agregar al carrito
+                        </button>
 
-                </div>
+                        <a href="/productos" class="btn btn-secondary">
+                            Volver al catálogo
+                        </a>
 
-                <button
-                    type="submit"
-                    class="btn btn-success"
-                >
+                    </form>
 
-                    Agregar al carrito
+                {{else}}
 
+                    <!--
+                        NUEVO: /carrito/agregar requiere sesión activa
+                        (ver carritoRoutes.js). Antes, un invitado podía
+                        ver este formulario, darle clic y terminar en
+                        un error inesperado. Ahora se le invita a
+                        iniciar sesión primero.
+                    -->
+                    <div class="alert alert-warning">
+                        Debes <a href="/auth/login">iniciar sesión</a> para agregar productos al carrito.
+                    </div>
+
+                    <a href="/productos" class="btn btn-secondary">
+                        Volver al catálogo
+                    </a>
+
+                {{/if}}
+
+            {{else}}
+
+                <button type="button" class="btn btn-secondary" disabled>
+                    Producto agotado
                 </button>
 
-                <a
-                    href="/productos"
-                    class="btn btn-secondary"
-                >
-
+                <a href="/productos" class="btn btn-outline-secondary">
                     Volver al catálogo
 
                 </a>
 
-            </form>
+            {{/if}}
 
         </div>
 
@@ -113,21 +146,14 @@
 
     <hr class="mt-5">
 
-    <div class="row">
-
-        <div class="col-md-12 text-center">
-
-            <a
-                href="/carrito"
-                class="btn btn-primary"
-            >
-
-                Ver Carrito
-
-            </a>
-
+    {{#if usuario}}
+        <div class="row">
+            <div class="col-md-12 text-center">
+                <a href="/carrito" class="btn btn-primary">
+                    Ver Carrito
+                </a>
+            </div>
         </div>
-
-    </div>
+    {{/if}}
 
 </div>
